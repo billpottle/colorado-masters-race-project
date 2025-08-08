@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Colorado Masters Race Project</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        --bg: #0f172a;          /* slate-900 */
+        --bg-accent: #111827;   /* gray-900 */
+        --card: rgba(17, 24, 39, 0.7);
+        --text: #e5e7eb;        /* gray-200 */
+        --muted: #9ca3af;       /* gray-400 */
+        --primary: #60a5fa;     /* blue-400 */
+        --primary-strong: #3b82f6; /* blue-500 */
+        --accent: #a78bfa;      /* violet-400 */
+        --success: #34d399;     /* emerald-400 */
+        --warning: #f59e0b;     /* amber-500 */
+        --danger: #f43f5e;      /* rose-500 */
+        --shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+        --radius: 16px;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        color: var(--text);
+        background: radial-gradient(1200px 800px at 10% 10%, #1f2937 0%, var(--bg) 40%),
+                    radial-gradient(900px 600px at 90% 20%, #0b1020 0%, var(--bg) 50%),
+                    linear-gradient(180deg, #0b1020 0%, #0f172a 100%);
+        background-attachment: fixed;
+      }
+
+      header {
+        max-width: 1100px;
+        margin: 40px auto 16px;
+        padding: 0 20px;
+      }
+      .title {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        font-size: clamp(28px, 3.5vw, 48px);
+        margin: 0 0 8px;
+        background: linear-gradient(90deg, var(--primary-strong), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 20px auto 80px;
+        padding: 0 20px;
+      }
+
+      .card {
+        position: relative;
+        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: var(--shadow);
+        border-radius: var(--radius);
+        padding: 24px;
+        overflow: hidden;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        background: radial-gradient(600px 200px at 0% 0%, rgba(96,165,250,0.18) 0%, rgba(96,165,250,0) 60%),
+                    radial-gradient(500px 150px at 100% 0%, rgba(167,139,250,0.18) 0%, rgba(167,139,250,0) 60%);
+        z-index: 0;
+        pointer-events: none;
+      }
+      .card-content { position: relative; z-index: 1; }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #d1d5db;
+        margin: 0 0 16px;
+      }
+      .section-title .dot {
+        width: 10px; height: 10px; border-radius: 999px; background: var(--primary);
+        box-shadow: 0 0 20px rgba(59,130,246,0.7);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 16px;
+      }
+      @media (max-width: 980px) {
+        .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+      @media (max-width: 640px) {
+        .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+
+      .stat {
+        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      }
+      .stat-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 8px;
+      }
+      .pill {
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+      }
+      .pill.primary { color: #bfdbfe; border-color: rgba(96,165,250,0.35); background: rgba(96,165,250,0.08); }
+      .pill.success { color: #bbf7d0; border-color: rgba(52,211,153,0.35); background: rgba(52,211,153,0.08); }
+      .pill.warning { color: #fde68a; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.08); }
+
+      .stat-value { font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.02em; color: #f3f4f6; }
+      .stat-sub { color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+      .footer-note {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .loading, .error {
+        margin-top: 8px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .error { color: #fecaca; }
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 class="title">Colorado Masters Race Project</h1>
+      <p class="subtitle">Aggregated results for Colorado Masters track races</p>
+    </header>
+
+    <main>
+      <section class="card" aria-labelledby="overview-title">
+        <div class="card-content">
+          <h2 id="overview-title" class="section-title"><span class="dot"></span>Overview</h2>
+          <div class="stats-grid" role="list">
+            <div class="stat" role="listitem">
+              <div class="stat-label">
+                <span class="pill primary">Performances (T)</span>
+              </div>
+              <div class="stat-value" id="perf-total">—</div>
+              <div class="stat-sub" id="perf-breakdown">M — · F —</div>
+            </div>
+
+            <div class="stat" role="listitem">
+              <div class="stat-label"><span class="pill success">Male (M)</span></div>
+              <div class="stat-value" id="perf-male">—</div>
+            </div>
+
+            <div class="stat" role="listitem">
+              <div class="stat-label"><span class="pill warning">Female (F)</span></div>
+              <div class="stat-value" id="perf-female">—</div>
+            </div>
+
+            <div class="stat" role="listitem">
+              <div class="stat-label"><span class="pill">Races (unique Date + Meet)</span></div>
+              <div class="stat-value" id="race-total">—</div>
+            </div>
+
+            <div class="stat" role="listitem">
+              <div class="stat-label"><span class="pill">Earliest Race</span></div>
+              <div class="stat-value" id="race-earliest">—</div>
+            </div>
+
+            <div class="stat" role="listitem">
+              <div class="stat-label"><span class="pill">Most Recent</span></div>
+              <div class="stat-value" id="race-latest">—</div>
+            </div>
+          </div>
+          <div class="loading" id="loading">Loading data…</div>
+          <div class="error hidden" id="error">Failed to load data. Please try again later.</div>
+          <div class="footer-note">One performance equals one row in <code>all-data.csv</code>. A race is defined as a unique combination of Date and Meet name.</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Papa Parse for robust CSV parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <script>
+      const elements = {
+        loading: document.getElementById('loading'),
+        error: document.getElementById('error'),
+        perfTotal: document.getElementById('perf-total'),
+        perfMale: document.getElementById('perf-male'),
+        perfFemale: document.getElementById('perf-female'),
+        perfBreakdown: document.getElementById('perf-breakdown'),
+        raceTotal: document.getElementById('race-total'),
+        earliest: document.getElementById('race-earliest'),
+        latest: document.getElementById('race-latest'),
+      };
+
+      const MONTHS = {
+        jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+        jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
+      };
+
+      function toTwoDigitYear(y) {
+        const num = Number(y);
+        return num < 100 ? (num + 2000) : num;
+      }
+
+      function parseDateFlexible(input) {
+        if (!input || typeof input !== 'string') return null;
+        const raw = input.trim();
+
+        // d-MMM-yy or d-MMM-yyyy (e.g., 5-Jun-25)
+        if (raw.includes('-')) {
+          const parts = raw.split('-');
+          if (parts.length === 3) {
+            const [d, m, y] = parts;
+            const day = Number(d);
+            const mon = MONTHS[m.toLowerCase().slice(0,3)];
+            const year = toTwoDigitYear(y);
+            if (!Number.isNaN(day) && mon >= 0 && !Number.isNaN(year)) {
+              return new Date(year, mon, day);
+            }
+          }
+        }
+
+        // mm/dd/yyyy or mm/dd/yy
+        if (raw.includes('/')) {
+          const [mm, dd, yy] = raw.split('/').map(s => s.trim());
+          const month = Number(mm) - 1;
+          const day = Number(dd);
+          const year = toTwoDigitYear(yy);
+          if (!Number.isNaN(month) && !Number.isNaN(day) && !Number.isNaN(year)) {
+            return new Date(year, month, day);
+          }
+        }
+
+        // Fallback to Date.parse
+        const parsed = new Date(raw);
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      function formatDate(date) {
+        if (!date) return '—';
+        const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        return fmt.format(date);
+      }
+
+      function normalizeGender(g) {
+        if (!g) return 'unknown';
+        const s = String(g).trim().toLowerCase();
+        if (s === 'm' || s === 'male') return 'male';
+        if (s === 'f' || s === 'female') return 'female';
+        return 'unknown';
+      }
+
+      function raceKey(dateStr, meetName) {
+        const date = parseDateFlexible(dateStr);
+        const name = (meetName || '').trim();
+        if (!date || !name) return null;
+        const key = [date.getFullYear(), String(date.getMonth()+1).padStart(2,'0'), String(date.getDate()).padStart(2,'0')].join('-');
+        return key + '::' + name.toLowerCase();
+      }
+
+      function computeStats(rows) {
+        let total = 0;
+        let male = 0;
+        let female = 0;
+        const raceSet = new Set();
+
+        let earliest = null;
+        let latest = null;
+
+        for (const r of rows) {
+          total += 1;
+
+          const g = normalizeGender(r['Gender']);
+          if (g === 'male') male += 1;
+          else if (g === 'female') female += 1;
+
+          const k = raceKey(r['Date'], r['Meet name']);
+          if (k) raceSet.add(k);
+
+          const d = parseDateFlexible(r['Date']);
+          if (d) {
+            if (!earliest || d < earliest) earliest = d;
+            if (!latest || d > latest) latest = d;
+          }
+        }
+
+        return {
+          total,
+          male,
+          female,
+          races: raceSet.size,
+          earliest,
+          latest,
+        };
+      }
+
+      async function loadData() {
+        elements.loading.classList.remove('hidden');
+        elements.error.classList.add('hidden');
+
+        try {
+          const response = await fetch('all-data.csv', { cache: 'no-store' });
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+
+          const csvText = await response.text();
+          const result = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+          if (result.errors && result.errors.length) {
+            console.warn('CSV parse warnings:', result.errors);
+          }
+
+          const rows = result.data || [];
+          const stats = computeStats(rows);
+
+          elements.perfTotal.textContent = stats.total.toLocaleString();
+          elements.perfMale.textContent = stats.male.toLocaleString();
+          elements.perfFemale.textContent = stats.female.toLocaleString();
+          elements.perfBreakdown.textContent = `M ${stats.male.toLocaleString()} · F ${stats.female.toLocaleString()}`;
+          elements.raceTotal.textContent = stats.races.toLocaleString();
+          elements.earliest.textContent = formatDate(stats.earliest);
+          elements.latest.textContent = formatDate(stats.latest);
+        } catch (err) {
+          console.error('Failed to load CSV:', err);
+          elements.error.classList.remove('hidden');
+          if (location.protocol === 'file:') {
+            elements.error.textContent = 'Failed to load data when opened directly from the file system (file://). Start a local server (e.g., `python3 -m http.server`) or deploy to GitHub Pages to allow fetching all-data.csv.';
+          }
+        } finally {
+          elements.loading.classList.add('hidden');
+        }
+      }
+
+      loadData();
+    </script>
+  </body>
+</html>
