@@ -138,12 +138,14 @@
         font-weight: 600;
         border: 1px solid rgba(255,255,255,0.08);
         background: rgba(255,255,255,0.04);
+        white-space: nowrap; /* prevent label wrapping like (ALL) on new line */
       }
       .pill.primary { color: #bfdbfe; border-color: rgba(96,165,250,0.35); background: rgba(96,165,250,0.08); }
       .pill.success { color: #bbf7d0; border-color: rgba(52,211,153,0.35); background: rgba(52,211,153,0.08); }
       .pill.warning { color: #fde68a; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.08); }
 
       .stat-value { font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.02em; color: #f3f4f6; }
+      .stat-value.nowrap { white-space: nowrap; }
       .stat-sub { color: var(--muted); font-size: 12px; margin-top: 6px; }
 
       .footer-note {
@@ -174,7 +176,7 @@
           <div class="stats-grid" role="list">
             <div class="stat" role="listitem">
               <div class="stat-label">
-                <span class="pill primary">Performances (T)</span>
+                <span class="pill primary">Performances (ALL)</span>
               </div>
               <div class="stat-value" id="perf-total">—</div>
               <div class="stat-sub" id="perf-breakdown">M — · F —</div>
@@ -197,17 +199,32 @@
 
             <div class="stat" role="listitem">
               <div class="stat-label"><span class="pill">Earliest Race</span></div>
-              <div class="stat-value" id="race-earliest">—</div>
+              <div class="stat-value nowrap" id="race-earliest">—</div>
             </div>
 
             <div class="stat" role="listitem">
               <div class="stat-label"><span class="pill">Most Recent</span></div>
-              <div class="stat-value" id="race-latest">—</div>
+              <div class="stat-value nowrap" id="race-latest">—</div>
             </div>
           </div>
           <div class="loading" id="loading">Loading data…</div>
           <div class="error hidden" id="error">Failed to load data. Please try again later.</div>
           <div class="footer-note">One performance equals one row in <code>all-data.csv</code>. A race is defined as a unique combination of Date and Meet name.</div>
+
+          <div id="local-picker" class="hidden" style="margin-top:16px;">
+            <label style="display:block; margin-bottom:8px; color: var(--muted); font-size: 13px;">Open locally without a server: select <code>all-data.csv</code></label>
+            <input id="csv-file-input" type="file" accept=".csv,text/csv" />
+            <div class="footer-note">This fallback is only needed when opening the page via <code>file://</code>. On GitHub Pages or a local server, the CSV loads automatically.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="notice-title" style="margin-top: 20px;">
+        <div class="card-content">
+          <h2 id="notice-title" class="section-title"><span class="dot"></span>Notice</h2>
+          <p class="subtitle" style="max-width: 80ch;">
+            This is an unofficial, preliminary list and will be updated over time as more data is added.
+          </p>
         </div>
       </section>
     </main>
@@ -334,19 +351,62 @@
         elements.loading.classList.remove('hidden');
         elements.error.classList.add('hidden');
 
+        // If running from file://, ask user to pick the CSV instead of fetching
+        if (location.protocol === 'file:') {
+          elements.loading.classList.add('hidden');
+          const picker = document.getElementById('local-picker');
+          const input = document.getElementById('csv-file-input');
+          picker.classList.remove('hidden');
+          input.addEventListener('change', () => {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            elements.loading.classList.remove('hidden');
+            const reader = new FileReader();
+            reader.onload = () => {
+              try {
+                const result = Papa.parse(reader.result, { header: true, skipEmptyLines: true });
+                if (result.errors && result.errors.length) {
+                  console.warn('CSV parse warnings:', result.errors);
+                }
+                const rows = result.data || [];
+                const stats = computeStats(rows);
+                elements.perfTotal.textContent = stats.total.toLocaleString();
+                elements.perfMale.textContent = stats.male.toLocaleString();
+                elements.perfFemale.textContent = stats.female.toLocaleString();
+                elements.perfBreakdown.textContent = `M ${stats.male.toLocaleString()} · F ${stats.female.toLocaleString()}`;
+                elements.raceTotal.textContent = stats.races.toLocaleString();
+                elements.earliest.textContent = formatDate(stats.earliest);
+                elements.latest.textContent = formatDate(stats.latest);
+                elements.error.classList.add('hidden');
+              } catch (err) {
+                console.error('Failed to parse CSV:', err);
+                elements.error.classList.remove('hidden');
+                elements.error.textContent = 'Failed to parse CSV file.';
+              } finally {
+                elements.loading.classList.add('hidden');
+              }
+            };
+            reader.onerror = () => {
+              elements.loading.classList.add('hidden');
+              elements.error.classList.remove('hidden');
+              elements.error.textContent = 'Failed to read the selected file.';
+            };
+            reader.readAsText(file);
+          }, { once: true });
+          return;
+        }
+
+        // Normal http(s) flow
         try {
           const response = await fetch('all-data.csv', { cache: 'no-store' });
           if (!response.ok) throw new Error('HTTP ' + response.status);
-
           const csvText = await response.text();
           const result = Papa.parse(csvText, { header: true, skipEmptyLines: true });
           if (result.errors && result.errors.length) {
             console.warn('CSV parse warnings:', result.errors);
           }
-
           const rows = result.data || [];
           const stats = computeStats(rows);
-
           elements.perfTotal.textContent = stats.total.toLocaleString();
           elements.perfMale.textContent = stats.male.toLocaleString();
           elements.perfFemale.textContent = stats.female.toLocaleString();
@@ -357,9 +417,6 @@
         } catch (err) {
           console.error('Failed to load CSV:', err);
           elements.error.classList.remove('hidden');
-          if (location.protocol === 'file:') {
-            elements.error.textContent = 'Failed to load data when opened directly from the file system (file://). Start a local server (e.g., `python3 -m http.server`) or deploy to GitHub Pages to allow fetching all-data.csv.';
-          }
         } finally {
           elements.loading.classList.add('hidden');
         }
