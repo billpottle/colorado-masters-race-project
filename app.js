@@ -284,6 +284,7 @@ function attachEventUIHandlers() {
       } else {
         renderLeaderboard(ev, currentGender);
       }
+      analyzeEvent();
     }
   });
 
@@ -293,7 +294,7 @@ function attachEventUIHandlers() {
   elements.btnCustom && elements.btnCustom.addEventListener('click', () => setActiveGender('custom'));
 
   // Analyze entire event: best time per age for male and female
-  elements.analyzeEventBtn && elements.analyzeEventBtn.addEventListener('click', () => {
+  const analyzeEvent = () => {
     const ev = elements.eventSelect && elements.eventSelect.value;
     if (!ev) return;
     const data = allRows.filter(r => (r['Event'] || '').trim() === ev && Number.isFinite(Number(r['Age'])) && Number.isFinite(toSeconds(r['Time'])));
@@ -311,7 +312,7 @@ function attachEventUIHandlers() {
       }
     }
     renderEventChart(series, bestMeta);
-  });
+  };
 
   // Custom controls
   const syncRange = () => {
@@ -441,6 +442,16 @@ function attachEventUIHandlers() {
     const canvas = document.createElement('div');
     canvas.className = 'chart-canvas';
     container.appendChild(canvas);
+    // Axes and lines containers
+    const axes = document.createElement('div');
+    axes.className = 'chart-axis';
+    axes.innerHTML = '<div class="x"></div><div class="y"></div>';
+    container.appendChild(axes);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    const polyWrap = document.createElement('div');
+    polyWrap.className = 'chart-polyline';
+    polyWrap.appendChild(poly);
+    container.appendChild(polyWrap);
     const tooltip = document.createElement('div');
     tooltip.className = 'chart-tooltip';
     container.appendChild(tooltip);
@@ -476,6 +487,7 @@ function attachEventUIHandlers() {
     };
 
     const drawSeries = (gender, cls) => {
+      const points = [];
       for (const [age, time] of Array.from(series[gender].entries()).sort((a,b)=>a[0]-b[0])) {
         const x = xScale(age);
         const y = yScale(time);
@@ -486,12 +498,20 @@ function attachEventUIHandlers() {
         const row = meta[gender].get(age);
         pt.addEventListener('mouseenter', () => {
           tooltip.style.display = 'block';
-          tooltip.textContent = `${row['Name']} • ${row['Time']} • ${formatDate(parseDateFlexible(row['Date']))}`;
+          tooltip.textContent = `${row['Name']} • age ${row['Age']} • ${row['Time']} • ${formatDate(parseDateFlexible(row['Date']))}`;
           tooltip.style.left = `${x + 8}px`;
           tooltip.style.top = `${y - 8}px`;
         });
         pt.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
         canvas.appendChild(pt);
+        points.push([x,y]);
+      }
+      if (points.length >= 2) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('class', cls);
+        const d = points.map((p,i)=> (i===0?`M ${p[0]},${p[1]}`:` L ${p[0]},${p[1]}`)).join('');
+        path.setAttribute('d', d);
+        poly.appendChild(path);
       }
     };
 

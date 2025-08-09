@@ -308,6 +308,24 @@ main {
   position: relative;
 }
 .chart-canvas { width: 100%; height: 100%; display: block; }
+.chart-axis {
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  pointer-events: none;
+}
+.chart-axis .x, .chart-axis .y { position: absolute; color: var(--muted); font-size: 11px; }
+.chart-axis .x { bottom: 6px; left: 24px; right: 12px; border-top: 1px dashed color-mix(in srgb, var(--text), transparent 88%); }
+.chart-axis .y { top: 12px; bottom: 24px; left: 24px; border-left: 1px dashed color-mix(in srgb, var(--text), transparent 88%); }
+.chart-axis .tick { position: absolute; color: var(--muted); font-size: 10px; transform: translate(-50%, 0); }
+.chart-line {
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  pointer-events: none;
+}
+.chart-polyline { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.chart-polyline svg { width: 100%; height: 100%; }
+.chart-polyline path.male { stroke: color-mix(in srgb, var(--success), white 10%); stroke-width: 2; fill: none; }
+.chart-polyline path.female { stroke: color-mix(in srgb, var(--warning), white 10%); stroke-width: 2; fill: none; }
 .chart-point {
   position: absolute;
   width: 8px; height: 8px; border-radius: 999px;
