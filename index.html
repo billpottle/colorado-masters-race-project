@@ -112,11 +112,10 @@
                 <label class="footer-note">Age range</label>
                 <div class="range-inputs">
                   <input id="age-min" type="range" min="30" max="100" value="30" step="1" />
-                  <input id="age-max" type="range" min="30" max="100" value="100" step="1" />
                 </div>
                 <div class="range-values">
-                  <span>Min: <strong id="age-min-val">30</strong></span>
-                  <span>Max: <strong id="age-max-val">100</strong></span>
+                  <span>Min age: <strong id="age-min-val">30</strong></span>
+                  <span>Max age: <strong>100</strong></span>
                 </div>
               </div>
 
@@ -134,6 +133,8 @@
             <div id="custom-results" class="table-container" style="margin-top:14px;">
               <ul class="mini-list" id="custom-results-list" style="margin:0; padding:12px;"></ul>
             </div>
+
+            <div id="custom-histogram" class="histogram" aria-label="Time distribution"></div>
           </div>
         </div>
       </section>

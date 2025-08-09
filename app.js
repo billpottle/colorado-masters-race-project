@@ -24,14 +24,13 @@ const elements = {
   btnCustom: document.getElementById('btn-custom'),
   customPanel: document.getElementById('custom-panel'),
   ageMin: document.getElementById('age-min'),
-  ageMax: document.getElementById('age-max'),
   ageMinVal: document.getElementById('age-min-val'),
-  ageMaxVal: document.getElementById('age-max-val'),
   cGenAll: document.getElementById('cgen-all'),
   cGenMale: document.getElementById('cgen-male'),
   cGenFemale: document.getElementById('cgen-female'),
   analyzeBtn: document.getElementById('analyze-btn'),
   customResultsList: document.getElementById('custom-results-list'),
+  customHistogram: document.getElementById('custom-histogram'),
   themeDark: document.getElementById('theme-dark'),
   themeLight: document.getElementById('theme-light'),
 };
@@ -245,6 +244,8 @@ function attachEventUIHandlers() {
     const ev = elements.eventSelect.value;
     if (g === 'custom') {
       elements.customPanel && elements.customPanel.classList.remove('hidden');
+      // Hide the default leaderboard when custom is active
+      elements.leaderboardContainer && (elements.leaderboardContainer.innerHTML = '');
     } else {
       elements.customPanel && elements.customPanel.classList.add('hidden');
       if (ev) renderLeaderboard(ev, g);
@@ -273,20 +274,10 @@ function attachEventUIHandlers() {
 
   // Custom controls
   const syncRange = () => {
-    let min = Number(elements.ageMin.value);
-    let max = Number(elements.ageMax.value);
-    if (min > max) {
-      // Keep handles from crossing
-      if (document.activeElement === elements.ageMin) max = min;
-      else min = max;
-      elements.ageMin.value = String(min);
-      elements.ageMax.value = String(max);
-    }
+    const min = Number(elements.ageMin.value);
     elements.ageMinVal.textContent = String(min);
-    elements.ageMaxVal.textContent = String(max);
   };
   elements.ageMin && elements.ageMin.addEventListener('input', syncRange);
-  elements.ageMax && elements.ageMax.addEventListener('input', syncRange);
   syncRange();
 
   let customGender = 'all';
@@ -327,7 +318,7 @@ function attachEventUIHandlers() {
     const ev = elements.eventSelect.value;
     if (!ev) return;
     const min = Number(elements.ageMin.value);
-    const max = Number(elements.ageMax.value);
+    const max = 100;
     const rows = allRows.filter(r => {
       if ((r['Event'] || '').trim() !== ev) return false;
       const age = Number(r['Age']);
@@ -338,7 +329,37 @@ function attachEventUIHandlers() {
       return Number.isFinite(t);
     }).sort((a,b) => toSeconds(a['Time']) - toSeconds(b['Time']));
     renderCustomResults(rows);
+    renderHistogram(rows);
   });
+
+  function renderHistogram(rows) {
+    const container = elements.customHistogram;
+    if (!container) return;
+    container.innerHTML = '';
+    if (!rows.length) return;
+    // Build histogram bins on time (seconds)
+    const times = rows.map(r => toSeconds(r['Time'])).filter(t => Number.isFinite(t));
+    if (!times.length) return;
+    const minT = Math.min(...times);
+    const maxT = Math.max(...times);
+    const binCount = Math.min(24, Math.max(8, Math.round(Math.sqrt(times.length))));
+    const binSize = (maxT - minT) / binCount || 1;
+    const bins = new Array(binCount).fill(0);
+    for (const t of times) {
+      let idx = Math.floor((t - minT) / binSize);
+      if (idx >= binCount) idx = binCount - 1;
+      if (idx < 0) idx = 0;
+      bins[idx]++;
+    }
+    const maxBin = Math.max(...bins);
+    for (const count of bins) {
+      const bar = document.createElement('div');
+      bar.className = 'hist-bar';
+      const h = maxBin ? Math.round((count / maxBin) * 100) : 0;
+      bar.style.height = `${h}%`;
+      container.appendChild(bar);
+    }
+  }
 }
 
 function attachSearchHandlers() {

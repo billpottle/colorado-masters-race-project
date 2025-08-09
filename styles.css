@@ -276,6 +276,24 @@ main {
   accent-color: var(--primary);
 }
 .range-values { display: flex; gap: 16px; color: var(--muted); }
+
+.histogram {
+  margin-top: 12px;
+  height: 140px;
+  border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
+  border-radius: 12px;
+  padding: 10px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--card), transparent 90%), color-mix(in srgb, var(--card), transparent 96%));
+  display: grid;
+  align-items: end;
+  grid-auto-flow: column;
+  gap: 6px;
+}
+.hist-bar {
+  width: 10px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary), transparent 35%), color-mix(in srgb, var(--primary), transparent 10%));
+  border-radius: 6px 6px 0 0;
+}
 .mini-list { margin: 0; padding: 0; list-style: none; }
 .mini-list li {
   display: grid;
