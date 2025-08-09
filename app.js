@@ -154,6 +154,25 @@ function toSeconds(timeStr) {
   return Infinity;
 }
 
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return '—';
+  const m = Math.floor(seconds / 60);
+  const s = seconds - m * 60;
+  if (m > 0) return `${m}:${s.toFixed(1).padStart(4, '0')}`; // e.g., 4:39.4
+  return s.toFixed(1); // e.g., 17.2
+}
+
+function ordinal(n) {
+  const v = n % 100;
+  if (v >= 11 && v <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1: return `${n}st`;
+    case 2: return `${n}nd`;
+    case 3: return `${n}rd`;
+    default: return `${n}th`;
+  }
+}
+
 function populateEventDropdown(rows) {
   if (!elements.eventSelect) return;
   const events = Array.from(new Set(rows.map(r => (r['Event'] || '').trim()).filter(Boolean))).sort((a,b) => a.localeCompare(b));
@@ -303,13 +322,16 @@ function attachEventUIHandlers() {
       listEl.appendChild(li);
       return;
     }
+    let rank = 1;
     for (const r of rows) {
       const li = document.createElement('li');
+      li.style.gridTemplateColumns = '5ch 1fr 8ch 14ch 8ch';
+      const rankEl = document.createElement('span'); rankEl.className = 'rank'; rankEl.textContent = ordinal(rank++);
       const who = document.createElement('span'); who.className = 'who'; who.textContent = r['Name'] || '—';
       const time = document.createElement('span'); time.className = 'time'; time.textContent = r['Time'] || '—';
       const dateEl = document.createElement('span'); dateEl.className = 'date'; dateEl.textContent = formatDate(parseDateFlexible(r['Date'])) || '—';
       const ageEl = document.createElement('span'); ageEl.className = 'age'; ageEl.textContent = `age ${r['Age']}`;
-      li.appendChild(who); li.appendChild(time); li.appendChild(dateEl); li.appendChild(ageEl);
+      li.appendChild(rankEl); li.appendChild(who); li.appendChild(time); li.appendChild(dateEl); li.appendChild(ageEl);
       listEl.appendChild(li);
     }
   };
@@ -318,7 +340,7 @@ function attachEventUIHandlers() {
     const ev = elements.eventSelect.value;
     if (!ev) return;
     const min = Number(elements.ageMin.value);
-    const max = 100;
+    const max = Number(elements.ageMax.value);
     const rows = allRows.filter(r => {
       if ((r['Event'] || '').trim() !== ev) return false;
       const age = Number(r['Age']);
@@ -352,12 +374,25 @@ function attachEventUIHandlers() {
       bins[idx]++;
     }
     const maxBin = Math.max(...bins);
+    const barsEl = container.querySelector('.hist-bars') || container;
+    const axis = container.querySelector('.hist-axis');
+    if (barsEl) barsEl.innerHTML = '';
+    if (axis) axis.innerHTML = '';
     for (const count of bins) {
       const bar = document.createElement('div');
       bar.className = 'hist-bar';
       const h = maxBin ? Math.round((count / maxBin) * 100) : 0;
       bar.style.height = `${h}%`;
-      container.appendChild(bar);
+      barsEl.appendChild(bar);
+    }
+    const ticks = [minT, minT + (maxT - minT) / 2, maxT];
+    if (axis) {
+      for (const t of ticks) {
+        const tick = document.createElement('div');
+        tick.className = 'hist-tick';
+        tick.textContent = formatTime(t);
+        axis.appendChild(tick);
+      }
     }
   }
 }

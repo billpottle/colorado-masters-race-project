@@ -271,7 +271,7 @@ main {
 .custom-panel { margin-top: 10px; }
 .range-controls { display: flex; flex-direction: column; gap: 10px; }
 .range-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-width: 240px; }
+.range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-width: 260px; position: relative; }
 .range-inputs input[type="range"] {
   accent-color: var(--primary);
 }
@@ -285,15 +285,17 @@ main {
   padding: 10px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--card), transparent 90%), color-mix(in srgb, var(--card), transparent 96%));
   display: grid;
-  align-items: end;
-  grid-auto-flow: column;
-  gap: 6px;
+  grid-template-rows: 1fr auto;
 }
+.hist-bars { display: grid; align-items: end; grid-auto-flow: column; gap: 6px; }
 .hist-bar {
   width: 10px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--primary), transparent 35%), color-mix(in srgb, var(--primary), transparent 10%));
   border-radius: 6px 6px 0 0;
 }
+.hist-axis { margin-top: 8px; display: grid; grid-auto-flow: column; justify-content: space-between; color: var(--muted); font-size: 12px; }
+.hist-tick { text-align: center; }
+.rank { color: color-mix(in srgb, var(--primary), white 20%); font-weight: 800; width: 5ch; text-align: right; }
 .mini-list { margin: 0; padding: 0; list-style: none; }
 .mini-list li {
   display: grid;
