@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sources • Colorado Masters Race Project</title>
+    <link rel="icon" type="image/svg+xml" href="runner-favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="theme-toggle" aria-label="Theme selector">
+      <div class="segmented" role="tablist" aria-label="Theme">
+        <button id="theme-dark" class="seg-btn active" role="tab" aria-selected="true" type="button">🌙 Dark</button>
+        <button id="theme-light" class="seg-btn" role="tab" aria-selected="false" type="button">☀️ Light</button>
+      </div>
+    </div>
+    <header>
+      <h1 class="title">Data Sources</h1>
+      <p class="subtitle">Where our race data comes from</p>
+      <div class="header-actions">
+        <a class="button" href="index.html" aria-label="Back to main">← Back to main</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="card" aria-labelledby="sources-title">
+        <div class="card-content">
+          <h2 id="sources-title" class="section-title"><span class="dot"></span>Sources</h2>
+          <div class="grid" role="list">
+            <a class="link-card" role="listitem" href="https://boulderroadrunners.org/race-results/track-meets/" target="_blank" rel="noopener noreferrer" aria-label="Boulder Road Runners results">
+              <h3>Boulder Road Runners</h3>
+              <p>All-Comers Summer Track & Field Meet results across years.</p>
+            </a>
+            <!-- Add more source cards here as new sources are integrated -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Minimal theme sync (reuse same keys as main)
+      const themeDark = document.getElementById('theme-dark');
+      const themeLight = document.getElementById('theme-light');
+      function applyTheme(theme) {
+        const root = document.documentElement;
+        if (theme === 'light') {
+          root.setAttribute('data-theme', 'light');
+          themeLight && themeLight.classList.add('active');
+          themeDark && themeDark.classList.remove('active');
+        } else {
+          root.removeAttribute('data-theme');
+          themeDark && themeDark.classList.add('active');
+          themeLight && themeLight.classList.remove('active');
+        }
+      }
+      const stored = localStorage.getItem('cmrp-theme') || 'dark';
+      applyTheme(stored);
+      themeDark && themeDark.addEventListener('click', () => { localStorage.setItem('cmrp-theme','dark'); applyTheme('dark'); });
+      themeLight && themeLight.addEventListener('click', () => { localStorage.setItem('cmrp-theme','light'); applyTheme('light'); });
+    </script>
+  </body>
+  </html>
+
+
