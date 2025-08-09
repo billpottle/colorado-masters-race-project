@@ -237,6 +237,11 @@ function attachEventUIHandlers() {
     currentGender = g;
     elements.btnMale.classList.toggle('active', g === 'male');
     elements.btnFemale.classList.toggle('active', g === 'female');
+    elements.btnCustom && elements.btnCustom.classList.toggle('active', g === 'custom');
+    // ARIA states
+    elements.btnMale && elements.btnMale.setAttribute('aria-selected', String(g === 'male'));
+    elements.btnFemale && elements.btnFemale.setAttribute('aria-selected', String(g === 'female'));
+    elements.btnCustom && elements.btnCustom.setAttribute('aria-selected', String(g === 'custom'));
     const ev = elements.eventSelect.value;
     if (g === 'custom') {
       elements.customPanel && elements.customPanel.classList.remove('hidden');
@@ -251,7 +256,11 @@ function attachEventUIHandlers() {
     elements.selectedEventLabel.textContent = ev || '—';
     if (ev) {
       elements.leaderboardCard.classList.remove('hidden');
-      renderLeaderboard(ev, currentGender);
+      if (currentGender === 'custom') {
+        elements.customPanel && elements.customPanel.classList.remove('hidden');
+      } else {
+        renderLeaderboard(ev, currentGender);
+      }
     } else {
       elements.leaderboardCard.classList.add('hidden');
     }
