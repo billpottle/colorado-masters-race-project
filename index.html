@@ -22,12 +22,12 @@
     <header>
       <h1 class="title">Colorado Masters Race Project</h1>
       <p class="subtitle">Aggregated results for Colorado Masters track races</p>
-      <div class="header-actions">
-        <a class="button" href="sources.html" aria-label="View data sources">Sources</a>
-      </div>
     </header>
 
     <main>
+      <div class="top-right">
+        <a href="https://github.com/billpottle/colorado-masters-race-project/commits/main/" target="_blank" rel="noopener noreferrer">Recent changes</a>
+      </div>
       <section class="card" aria-labelledby="overview-title">
         <div class="card-content">
           <div class="card-header">
@@ -70,7 +70,7 @@
           </div>
           <div class="loading" id="loading">Loading data…</div>
           <div class="error hidden" id="error">Failed to load data. Please try again later.</div>
-          <div class="footer-note">This is an unofficial, preliminary list and will be updated over time as more data is added. It is a 'best effort' site compiled by volunteers from public data. </div>
+          <div class="footer-note">This is an unofficial, preliminary list and will be updated over time as more data is added. It is a created by volunteers on a 'best efforts' basis from <a class="inline-link" href="sources.html">public data sources</a>.</div>
 
           <div id="local-picker" class="hidden" style="margin-top:16px;">
             <label style="display:block; margin-bottom:8px; color: var(--muted); font-size: 13px;">Open locally without a server: select <code>all-data.csv</code></label>

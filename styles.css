@@ -49,6 +49,17 @@ header {
 }
 .header-actions { margin-top: 12px; }
 .header-actions .button { text-decoration: none; display: inline-block; }
+.top-right {
+  max-width: 1100px;
+  margin: 0 auto 8px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+.top-right a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.top-right a:hover { text-decoration: underline; }
+.inline-link { color: var(--primary); text-decoration: none; }
+.inline-link:hover { text-decoration: underline; }
 .theme-toggle {
   position: fixed;
   top: 14px;
