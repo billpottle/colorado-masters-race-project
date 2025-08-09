@@ -77,29 +77,23 @@
         </div>
       </section>
 
-      <section class="card" aria-labelledby="event-title" style="margin-top: 20px;">
-        <div class="card-content">
-          <h2 id="event-title" class="section-title"><span class="dot"></span>Event leaderboards</h2>
-          <div class="control-row">
-            <label for="event-select" class="footer-note" style="margin: 0 8px 0 0;">Choose event</label>
-            <select id="event-select" class="input" style="min-width: 260px;">
-              <option value="" selected disabled>Select an event…</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section id="leaderboard-card" class="card hidden" aria-labelledby="leaderboard-title" style="margin-top: 20px;">
+      <section id="leaderboard-card" class="card" aria-labelledby="leaderboard-title" style="margin-top: 20px;">
         <div class="card-content">
           <div class="card-header">
             <h2 id="leaderboard-title" class="section-title" style="margin: 0;">
-              <span class="dot"></span>Top age‑group times · <span id="selected-event-label">—</span>
+              <span class="dot"></span>Records
             </h2>
             <div class="segmented" role="tablist" aria-label="Gender filter">
               <button id="btn-male" class="seg-btn active" role="tab" aria-selected="true" type="button">Male</button>
               <button id="btn-female" class="seg-btn" role="tab" aria-selected="false" type="button">Female</button>
               <button id="btn-custom" class="seg-btn" role="tab" aria-selected="false" type="button">Custom ages</button>
             </div>
+          </div>
+          <div class="control-row" style="margin-bottom:12px;">
+            <label for="event-select" class="footer-note" style="margin: 0 8px 0 0;">Event</label>
+            <select id="event-select" class="input" style="min-width: 260px;">
+              <option value="" selected disabled>Select an event…</option>
+            </select>
           </div>
           <div id="age-leaderboard" class="age-grid"></div>
 
@@ -131,11 +125,11 @@
               </div>
             </div>
 
-            <div id="custom-results" class="table-container" style="margin-top:14px;">
+            <div id="custom-results" class="table-container hidden" style="margin-top:14px;">
               <ul class="mini-list" id="custom-results-list" style="margin:0; padding:12px;"></ul>
             </div>
 
-            <div id="custom-histogram" class="histogram" aria-label="Time distribution">
+            <div id="custom-histogram" class="histogram hidden" aria-label="Time distribution">
               <div class="hist-bars"></div>
               <div class="hist-axis"></div>
             </div>

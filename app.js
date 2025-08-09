@@ -24,12 +24,15 @@ const elements = {
   btnCustom: document.getElementById('btn-custom'),
   customPanel: document.getElementById('custom-panel'),
   ageMin: document.getElementById('age-min'),
+  ageMax: document.getElementById('age-max'),
   ageMinVal: document.getElementById('age-min-val'),
+  ageMaxVal: document.getElementById('age-max-val'),
   cGenAll: document.getElementById('cgen-all'),
   cGenMale: document.getElementById('cgen-male'),
   cGenFemale: document.getElementById('cgen-female'),
   analyzeBtn: document.getElementById('analyze-btn'),
   customResultsList: document.getElementById('custom-results-list'),
+  customResults: document.getElementById('custom-results'),
   customHistogram: document.getElementById('custom-histogram'),
   themeDark: document.getElementById('theme-dark'),
   themeLight: document.getElementById('theme-light'),
@@ -273,16 +276,12 @@ function attachEventUIHandlers() {
 
   elements.eventSelect.addEventListener('change', () => {
     const ev = elements.eventSelect.value;
-    elements.selectedEventLabel.textContent = ev || '—';
     if (ev) {
-      elements.leaderboardCard.classList.remove('hidden');
       if (currentGender === 'custom') {
         elements.customPanel && elements.customPanel.classList.remove('hidden');
       } else {
         renderLeaderboard(ev, currentGender);
       }
-    } else {
-      elements.leaderboardCard.classList.add('hidden');
     }
   });
 
@@ -293,10 +292,20 @@ function attachEventUIHandlers() {
 
   // Custom controls
   const syncRange = () => {
-    const min = Number(elements.ageMin.value);
-    elements.ageMinVal.textContent = String(min);
+    let min = Number(elements.ageMin?.value);
+    let max = Number(elements.ageMax?.value);
+    if (!Number.isFinite(min)) min = 30;
+    if (!Number.isFinite(max)) max = 100;
+    if (min > max) {
+      if (document.activeElement === elements.ageMin) max = min; else min = max;
+      if (elements.ageMin) elements.ageMin.value = String(min);
+      if (elements.ageMax) elements.ageMax.value = String(max);
+    }
+    if (elements.ageMinVal) elements.ageMinVal.textContent = String(min);
+    if (elements.ageMaxVal) elements.ageMaxVal.textContent = String(max);
   };
   elements.ageMin && elements.ageMin.addEventListener('input', syncRange);
+  elements.ageMax && elements.ageMax.addEventListener('input', syncRange);
   syncRange();
 
   let customGender = 'all';
@@ -339,8 +348,8 @@ function attachEventUIHandlers() {
   elements.analyzeBtn && elements.analyzeBtn.addEventListener('click', () => {
     const ev = elements.eventSelect.value;
     if (!ev) return;
-    const min = Number(elements.ageMin.value);
-    const max = Number(elements.ageMax.value);
+    const min = Number(elements.ageMin?.value ?? 30);
+    const max = Number(elements.ageMax?.value ?? 100);
     const rows = allRows.filter(r => {
       if ((r['Event'] || '').trim() !== ev) return false;
       const age = Number(r['Age']);
@@ -352,6 +361,8 @@ function attachEventUIHandlers() {
     }).sort((a,b) => toSeconds(a['Time']) - toSeconds(b['Time']));
     renderCustomResults(rows);
     renderHistogram(rows);
+    elements.customResults && elements.customResults.classList.remove('hidden');
+    elements.customHistogram && elements.customHistogram.classList.remove('hidden');
   });
 
   function renderHistogram(rows) {
