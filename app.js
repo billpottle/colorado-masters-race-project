@@ -270,9 +270,15 @@ function attachEventUIHandlers() {
       elements.customPanel && elements.customPanel.classList.remove('hidden');
       // Hide the default leaderboard when custom is active
       elements.leaderboardContainer && (elements.leaderboardContainer.innerHTML = '');
+      // Hide event chart in custom mode
+      elements.eventChart && elements.eventChart.classList.add('hidden');
     } else {
       elements.customPanel && elements.customPanel.classList.add('hidden');
-      if (ev) renderLeaderboard(ev, g);
+      if (ev) {
+        renderLeaderboard(ev, g);
+        // Update event analysis chart when switching between male/female
+        if (typeof analyzeEvent === 'function') analyzeEvent();
+      }
     }
   };
 
