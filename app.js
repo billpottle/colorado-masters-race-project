@@ -15,6 +15,13 @@ const elements = {
   searchBtn: document.getElementById('search-btn'),
   resultsSummary: document.getElementById('results-summary'),
   resultsTable: document.getElementById('results-table'),
+  eventSelect: document.getElementById('event-select'),
+  leaderboardCard: document.getElementById('leaderboard-card'),
+  selectedEventLabel: document.getElementById('selected-event-label'),
+  leaderboardContainer: document.getElementById('age-leaderboard'),
+  btnMale: document.getElementById('btn-male'),
+  btnFemale: document.getElementById('btn-female'),
+  btnCustom: document.getElementById('btn-custom'),
 };
 
 const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
@@ -104,6 +111,148 @@ function computeStats(rows) {
   return { total, male, female, races: raceSet.size, earliest, latest };
 }
 
+// Age groups configuration
+const AGE_GROUPS = [
+  { label: '30-34', min: 30, max: 34 },
+  { label: '35-39', min: 35, max: 39 },
+  { label: '40-44', min: 40, max: 44 },
+  { label: '45-49', min: 45, max: 49 },
+  { label: '50-54', min: 50, max: 54 },
+  { label: '55-59', min: 55, max: 59 },
+  { label: '60-64', min: 60, max: 64 },
+  { label: '65-69', min: 65, max: 69 },
+  { label: '70-74', min: 70, max: 74 },
+  { label: '75-79', min: 75, max: 79 },
+  { label: '80+', min: 80, max: Infinity },
+];
+
+function toSeconds(timeStr) {
+  if (!timeStr) return Infinity;
+  const s = String(timeStr).trim();
+  // Supported formats: MM:SS.t, M:SS, SS.t
+  const parts = s.split(':');
+  if (parts.length === 1) {
+    const sec = Number(parts[0]);
+    return Number.isFinite(sec) ? sec : Infinity;
+  }
+  if (parts.length === 2) {
+    const min = Number(parts[0]);
+    const sec = Number(parts[1]);
+    if (Number.isFinite(min) && Number.isFinite(sec)) return min * 60 + sec;
+  }
+  return Infinity;
+}
+
+function populateEventDropdown(rows) {
+  if (!elements.eventSelect) return;
+  const events = Array.from(new Set(rows.map(r => (r['Event'] || '').trim()).filter(Boolean))).sort((a,b) => a.localeCompare(b));
+  elements.eventSelect.innerHTML = '<option value="" disabled selected>Select an event…</option>' +
+    events.map(e => `<option value="${e.replace(/"/g,'&quot;')}">${e}</option>`).join('');
+}
+
+function filterRowsForLeaderboard(eventName, gender) {
+  const desiredGender = gender; // 'male' | 'female'
+  return allRows.filter(r => {
+    const ev = (r['Event'] || '').trim();
+    if (ev !== eventName) return false;
+    const g = normalizeGender(r['Gender']);
+    if (desiredGender && g !== desiredGender) return false;
+    const age = Number(r['Age']);
+    if (!Number.isFinite(age)) return false;
+    const t = toSeconds(r['Time']);
+    return Number.isFinite(t);
+  });
+}
+
+function renderLeaderboard(eventName, gender) {
+  if (!elements.leaderboardContainer) return;
+  const rows = filterRowsForLeaderboard(eventName, gender);
+  const byGroup = new Map();
+  for (const group of AGE_GROUPS) byGroup.set(group.label, []);
+  for (const r of rows) {
+    const age = Number(r['Age']);
+    for (const group of AGE_GROUPS) {
+      if (age >= group.min && age <= group.max) {
+        byGroup.get(group.label).push(r);
+        break;
+      }
+      if (group.max === Infinity && age >= group.min) {
+        byGroup.get(group.label).push(r);
+        break;
+      }
+    }
+  }
+  // Build UI
+  const frag = document.createDocumentFragment();
+  for (const group of AGE_GROUPS) {
+    const list = (byGroup.get(group.label) || []).slice().sort((a,b) => toSeconds(a['Time']) - toSeconds(b['Time'])).slice(0,3);
+    const card = document.createElement('div');
+    card.className = 'age-card';
+    const h3 = document.createElement('h3');
+    h3.textContent = group.label;
+    card.appendChild(h3);
+    const ul = document.createElement('ul');
+    ul.className = 'mini-list';
+    if (list.length === 0) {
+      const li = document.createElement('li');
+      li.innerHTML = '<span class="meta">No results</span>';
+      ul.appendChild(li);
+    } else {
+      for (const r of list) {
+        const li = document.createElement('li');
+        const who = document.createElement('span');
+        who.className = 'who';
+        who.textContent = r['Name'] || '—';
+        const time = document.createElement('span');
+        time.className = 'time';
+        time.textContent = r['Time'] || '—';
+        const meta = document.createElement('span');
+        meta.className = 'meta';
+        const date = parseDateFlexible(r['Date']);
+        meta.textContent = `${formatDate(date)} · age ${r['Age']}`;
+        li.appendChild(who);
+        li.appendChild(time);
+        li.appendChild(meta);
+        ul.appendChild(li);
+      }
+    }
+    card.appendChild(ul);
+    frag.appendChild(card);
+  }
+  elements.leaderboardContainer.innerHTML = '';
+  elements.leaderboardContainer.appendChild(frag);
+}
+
+function attachEventUIHandlers() {
+  if (!elements.eventSelect) return;
+  let currentGender = 'male';
+  const setActiveGender = (g) => {
+    currentGender = g;
+    elements.btnMale.classList.toggle('active', g === 'male');
+    elements.btnFemale.classList.toggle('active', g === 'female');
+    const ev = elements.eventSelect.value;
+    if (ev) renderLeaderboard(ev, g);
+  };
+
+  elements.eventSelect.addEventListener('change', () => {
+    const ev = elements.eventSelect.value;
+    elements.selectedEventLabel.textContent = ev || '—';
+    if (ev) {
+      elements.leaderboardCard.classList.remove('hidden');
+      renderLeaderboard(ev, currentGender);
+    } else {
+      elements.leaderboardCard.classList.add('hidden');
+    }
+  });
+
+  elements.btnMale && elements.btnMale.addEventListener('click', () => setActiveGender('male'));
+  elements.btnFemale && elements.btnFemale.addEventListener('click', () => setActiveGender('female'));
+  // Custom ages: placeholder, does nothing for now per requirements
+  elements.btnCustom && elements.btnCustom.addEventListener('click', () => {
+    // no-op for now
+  });
+}
+
 function attachSearchHandlers() {
   if (!elements.searchInput || !elements.searchBtn) return;
   const performSearch = () => {
@@ -189,7 +338,9 @@ async function loadData() {
           elements.earliest.textContent = formatDate(stats.earliest);
           elements.latest.textContent = formatDate(stats.latest);
           elements.error.classList.add('hidden');
+          populateEventDropdown(rows);
           attachSearchHandlers();
+          attachEventUIHandlers();
         } catch (err) {
           console.error('Failed to parse CSV:', err);
           elements.error.classList.remove('hidden');
@@ -223,7 +374,9 @@ async function loadData() {
     elements.raceTotal.textContent = stats.races.toLocaleString();
     elements.earliest.textContent = formatDate(stats.earliest);
     elements.latest.textContent = formatDate(stats.latest);
+    populateEventDropdown(rows);
     attachSearchHandlers();
+    attachEventUIHandlers();
   } catch (err) {
     console.error('Failed to load CSV:', err);
     elements.error.classList.remove('hidden');

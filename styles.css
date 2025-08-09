@@ -172,6 +172,12 @@ main {
   align-items: center;
   margin-top: 6px;
 }
+.control-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
 .input {
   padding: 10px 12px;
   border-radius: 10px;
@@ -192,6 +198,68 @@ main {
   cursor: pointer;
 }
 .button:hover { filter: brightness(1.08); }
+
+/* Segmented control */
+.segmented {
+  display: inline-flex;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.seg-btn {
+  padding: 8px 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.seg-btn:hover { background: rgba(255,255,255,0.06); }
+.seg-btn.active {
+  color: #e5f0ff;
+  background: linear-gradient(180deg, rgba(96,165,250,0.25), rgba(96,165,250,0.12));
+  border-left: 1px solid rgba(96,165,250,0.35);
+  border-right: 1px solid rgba(96,165,250,0.35);
+}
+
+/* Age group grid */
+.age-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+@media (max-width: 900px) {
+  .age-grid { grid-template-columns: 1fr; }
+}
+.age-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px;
+}
+.age-card h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+.mini-list { margin: 0; padding: 0; list-style: none; }
+.mini-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.mini-list li + li { margin-top: 8px; }
+.mini-list .who { font-weight: 700; color: #f3f4f6; }
+.mini-list .time { font-weight: 700; color: #bfdbfe; }
+.mini-list .meta { color: #9ca3af; font-size: 12px; }
 
 .table-container {
   margin-top: 12px;
