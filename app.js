@@ -448,10 +448,12 @@ function attachEventUIHandlers() {
     const canvas = document.createElement('div');
     canvas.className = 'chart-canvas';
     container.appendChild(canvas);
-    // Axes and lines containers
+    // Axes and lines containers (drawn first, under points)
     const axes = document.createElement('div');
     axes.className = 'chart-axis';
-    axes.innerHTML = '<div class="x"></div><div class="y"></div>';
+    const xAxis = document.createElement('div'); xAxis.className = 'x';
+    const yAxis = document.createElement('div'); yAxis.className = 'y';
+    axes.appendChild(xAxis); axes.appendChild(yAxis);
     container.appendChild(axes);
     const poly = document.createElementNS('http://www.w3.org/2000/svg','svg');
     const polyWrap = document.createElement('div');
@@ -475,8 +477,8 @@ function attachEventUIHandlers() {
     const minTime = Math.min(...times);
     const maxTime = Math.max(...times);
 
-    const padX = 24; // px padding for edges
-    const padY = 18;
+    const padX = 36; // px padding for edges to fit y labels
+    const padY = 24;
     const rect = container.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -523,6 +525,24 @@ function attachEventUIHandlers() {
 
     drawSeries('male', 'male');
     drawSeries('female', 'female');
+
+    // Axis ticks (ages at min, mid, max; times at min and mid+max)
+    const ageTicks = [minAge, Math.round((minAge+maxAge)/2), maxAge];
+    for (const age of ageTicks) {
+      const tick = document.createElement('div');
+      tick.className = 'tick';
+      tick.style.left = `${xScale(age)}px`;
+      tick.textContent = `${age}`;
+      xAxis.appendChild(tick);
+    }
+    const timeTicks = [minTime, (minTime+maxTime)/2, maxTime];
+    for (const t of timeTicks) {
+      const tick = document.createElement('div');
+      tick.className = 'tick';
+      tick.style.top = `${yScale(t)}px`;
+      tick.textContent = formatTime(t);
+      yAxis.appendChild(tick);
+    }
   }
 }
 
