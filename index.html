@@ -97,6 +97,28 @@
         color: #d1d5db;
         margin: 0 0 16px;
       }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .perf-inline {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+        color: var(--muted);
+      }
+      .perf-inline .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+      .perf-inline .value { font-weight: 800; color: #f3f4f6; }
+      .perf-inline .all { color: var(--primary); }
+      .perf-inline .male { color: var(--success); }
+      .perf-inline .female { color: var(--warning); }
+      .perf-inline .sep { color: var(--muted); margin: 0 2px; }
+
       .section-title .dot {
         width: 10px; height: 10px; border-radius: 999px; background: var(--primary);
         box-shadow: 0 0 20px rgba(59,130,246,0.7);
@@ -104,14 +126,14 @@
 
       .stats-grid {
         display: grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 24px; /* wider spacing between stat cards */
       }
       @media (max-width: 980px) {
-        .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+        .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
       }
       @media (max-width: 640px) {
-        .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .stats-grid { grid-template-columns: 1fr; gap: 14px; }
       }
 
       .stat {
@@ -222,26 +244,29 @@
     <main>
       <section class="card" aria-labelledby="overview-title">
         <div class="card-content">
-          <h2 id="overview-title" class="section-title"><span class="dot"></span>Overview</h2>
+          <div class="card-header">
+            <h2 id="overview-title" class="section-title" style="margin: 0;"><span class="dot"></span>Overview</h2>
+            <div class="perf-inline" aria-label="Performances summary">
+              <span class="label">Performances</span>
+              <span class="sep">·</span>
+              <span class="all">
+                <span class="value" id="perf-total">—</span>
+                <span class="label">ALL</span>
+              </span>
+              <span class="sep">·</span>
+              <span class="male">
+                <span class="value" id="perf-male">—</span>
+                <span class="label">M</span>
+              </span>
+              <span class="sep">·</span>
+              <span class="female">
+                <span class="value" id="perf-female">—</span>
+                <span class="label">F</span>
+              </span>
+              <span id="perf-breakdown" class="hidden"></span>
+            </div>
+          </div>
           <div class="stats-grid" role="list">
-            <div class="stat" role="listitem">
-              <div class="stat-label">
-                <span class="pill primary">Performances (ALL)</span>
-              </div>
-              <div class="stat-value" id="perf-total">—</div>
-              <div class="stat-sub" id="perf-breakdown">M — · F —</div>
-            </div>
-
-            <div class="stat" role="listitem">
-              <div class="stat-label"><span class="pill success">Male (M)</span></div>
-              <div class="stat-value" id="perf-male">—</div>
-            </div>
-
-            <div class="stat" role="listitem">
-              <div class="stat-label"><span class="pill warning">Female (F)</span></div>
-              <div class="stat-value" id="perf-female">—</div>
-            </div>
-
             <div class="stat" role="listitem">
               <div class="stat-label"><span class="pill">Races</span></div>
               <div class="stat-value" id="race-total">—</div>
