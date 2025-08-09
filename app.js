@@ -22,6 +22,8 @@ const elements = {
   btnMale: document.getElementById('btn-male'),
   btnFemale: document.getElementById('btn-female'),
   btnCustom: document.getElementById('btn-custom'),
+  themeDark: document.getElementById('theme-dark'),
+  themeLight: document.getElementById('theme-light'),
 };
 
 const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
@@ -308,6 +310,34 @@ function renderResultsTable(rows) {
   elements.resultsTable.appendChild(table);
 }
 
+// Theme toggle
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'light') {
+    root.setAttribute('data-theme', 'light');
+    elements.themeLight && elements.themeLight.classList.add('active');
+    elements.themeDark && elements.themeDark.classList.remove('active');
+  } else {
+    root.removeAttribute('data-theme');
+    elements.themeDark && elements.themeDark.classList.add('active');
+    elements.themeLight && elements.themeLight.classList.remove('active');
+  }
+}
+
+function initTheme() {
+  const stored = localStorage.getItem('cmrp-theme');
+  const initial = stored || 'dark';
+  applyTheme(initial);
+  elements.themeDark && elements.themeDark.addEventListener('click', () => {
+    localStorage.setItem('cmrp-theme', 'dark');
+    applyTheme('dark');
+  });
+  elements.themeLight && elements.themeLight.addEventListener('click', () => {
+    localStorage.setItem('cmrp-theme', 'light');
+    applyTheme('light');
+  });
+}
+
 async function loadData() {
   elements.loading.classList.remove('hidden');
   elements.error.classList.add('hidden');
@@ -376,6 +406,7 @@ async function loadData() {
     elements.latest.textContent = formatDate(stats.latest);
     populateEventDropdown(rows);
     attachSearchHandlers();
+    initTheme();
     attachEventUIHandlers();
   } catch (err) {
     console.error('Failed to load CSV:', err);
