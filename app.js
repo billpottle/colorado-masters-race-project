@@ -31,9 +31,11 @@ const elements = {
   cGenMale: document.getElementById('cgen-male'),
   cGenFemale: document.getElementById('cgen-female'),
   analyzeBtn: document.getElementById('analyze-btn'),
+  analyzeEventBtn: document.getElementById('analyze-event-btn'),
   customResultsList: document.getElementById('custom-results-list'),
   customResults: document.getElementById('custom-results'),
   customHistogram: document.getElementById('custom-histogram'),
+  eventChart: document.getElementById('event-chart'),
   themeDark: document.getElementById('theme-dark'),
   themeLight: document.getElementById('theme-light'),
 };
@@ -290,6 +292,27 @@ function attachEventUIHandlers() {
   // Custom ages panel activation
   elements.btnCustom && elements.btnCustom.addEventListener('click', () => setActiveGender('custom'));
 
+  // Analyze entire event: best time per age for male and female
+  elements.analyzeEventBtn && elements.analyzeEventBtn.addEventListener('click', () => {
+    const ev = elements.eventSelect && elements.eventSelect.value;
+    if (!ev) return;
+    const data = allRows.filter(r => (r['Event'] || '').trim() === ev && Number.isFinite(Number(r['Age'])) && Number.isFinite(toSeconds(r['Time'])));
+    const series = { male: new Map(), female: new Map() };
+    const bestMeta = { male: new Map(), female: new Map() };
+    for (const r of data) {
+      const age = Number(r['Age']);
+      const g = normalizeGender(r['Gender']);
+      const t = toSeconds(r['Time']);
+      if (g !== 'male' && g !== 'female') continue;
+      const current = series[g].get(age);
+      if (current == null || t < current) {
+        series[g].set(age, t);
+        bestMeta[g].set(age, r);
+      }
+    }
+    renderEventChart(series, bestMeta);
+  });
+
   // Custom controls
   const syncRange = () => {
     let min = Number(elements.ageMin?.value);
@@ -389,13 +412,15 @@ function attachEventUIHandlers() {
     const axis = container.querySelector('.hist-axis');
     if (barsEl) barsEl.innerHTML = '';
     if (axis) axis.innerHTML = '';
-    for (const count of bins) {
+    // Create a fixed number of columns matching binCount
+    barsEl.style.gridTemplateColumns = `repeat(${binCount}, 1fr)`;
+    bins.forEach((count) => {
       const bar = document.createElement('div');
       bar.className = 'hist-bar';
       const h = maxBin ? Math.round((count / maxBin) * 100) : 0;
       bar.style.height = `${h}%`;
       barsEl.appendChild(bar);
-    }
+    });
     const ticks = [minT, minT + (maxT - minT) / 2, maxT];
     if (axis) {
       for (const t of ticks) {
@@ -405,6 +430,73 @@ function attachEventUIHandlers() {
         axis.appendChild(tick);
       }
     }
+  }
+
+  function renderEventChart(series, meta) {
+    const container = elements.eventChart;
+    if (!container) return;
+    container.innerHTML = '';
+    container.classList.remove('hidden');
+    // Build canvas and tooltip
+    const canvas = document.createElement('div');
+    canvas.className = 'chart-canvas';
+    container.appendChild(canvas);
+    const tooltip = document.createElement('div');
+    tooltip.className = 'chart-tooltip';
+    container.appendChild(tooltip);
+
+    // Compute bounds
+    const allAges = new Set([...series.male.keys(), ...series.female.keys()]);
+    if (allAges.size === 0) return;
+    const ages = Array.from(allAges).sort((a,b)=>a-b);
+    const times = [
+      ...Array.from(series.male.values()),
+      ...Array.from(series.female.values()),
+    ];
+    const minAge = Math.min(...ages);
+    const maxAge = Math.max(...ages);
+    const minTime = Math.min(...times);
+    const maxTime = Math.max(...times);
+
+    const padX = 24; // px padding for edges
+    const padY = 18;
+    const rect = container.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    const xScale = (age) => {
+      if (maxAge === minAge) return width/2;
+      return padX + ((age - minAge) / (maxAge - minAge)) * (width - padX*2);
+    };
+    const yScale = (time) => {
+      if (maxTime === minTime) return height/2;
+      // smaller times should be higher on the chart
+      const norm = (time - minTime) / (maxTime - minTime);
+      return height - padY - norm * (height - padY*2);
+    };
+
+    const drawSeries = (gender, cls) => {
+      for (const [age, time] of Array.from(series[gender].entries()).sort((a,b)=>a[0]-b[0])) {
+        const x = xScale(age);
+        const y = yScale(time);
+        const pt = document.createElement('div');
+        pt.className = `chart-point ${cls}`;
+        pt.style.left = `${x}px`;
+        pt.style.top = `${y}px`;
+        const row = meta[gender].get(age);
+        pt.addEventListener('mouseenter', () => {
+          tooltip.style.display = 'block';
+          tooltip.textContent = `${row['Name']} • ${row['Time']} • ${formatDate(parseDateFlexible(row['Date']))}`;
+          tooltip.style.left = `${x + 8}px`;
+          tooltip.style.top = `${y - 8}px`;
+        });
+        pt.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+        canvas.appendChild(pt);
+      }
+    };
+
+    drawSeries('male', 'male');
+    drawSeries('female', 'female');
   }
 }
 
