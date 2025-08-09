@@ -448,6 +448,18 @@ function attachEventUIHandlers() {
     const canvas = document.createElement('div');
     canvas.className = 'chart-canvas';
     container.appendChild(canvas);
+    // Title and legend
+    const title = document.createElement('div');
+    title.className = 'chart-title';
+    const evName = elements.eventSelect && elements.eventSelect.value ? elements.eventSelect.value : 'Event';
+    title.textContent = `${evName} records vs age`;
+    container.appendChild(title);
+
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend';
+    legend.innerHTML = '<span class="legend-item"><span class="legend-dot male"></span>Male</span><span class="legend-item"><span class="legend-dot female"></span>Female</span>';
+    container.appendChild(legend);
+
     // Axes and lines containers (drawn first, under points)
     const axes = document.createElement('div');
     axes.className = 'chart-axis';
@@ -543,6 +555,8 @@ function attachEventUIHandlers() {
       tick.textContent = formatTime(t);
       yAxis.appendChild(tick);
     }
+    const xlabel = document.createElement('div'); xlabel.className = 'xlabel'; xlabel.textContent = 'Age'; xAxis.appendChild(xlabel);
+    const ylabel = document.createElement('div'); ylabel.className = 'ylabel'; ylabel.textContent = 'Best time'; yAxis.appendChild(ylabel);
   }
 }
 

@@ -307,6 +307,18 @@ main {
   background: linear-gradient(180deg, color-mix(in srgb, var(--card), transparent 90%), color-mix(in srgb, var(--card), transparent 96%));
   position: relative;
 }
+.chart-title {
+  position: absolute; top: 6px; left: 10px; z-index: 4;
+  font-weight: 700; font-size: 13px; color: color-mix(in srgb, var(--text), transparent 10%);
+  pointer-events: none;
+}
+.chart-legend {
+  position: absolute; top: 6px; right: 10px; display: flex; gap: 12px; z-index: 4; pointer-events: none; color: var(--muted); font-size: 12px;
+}
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 999px; }
+.legend-dot.male { background: color-mix(in srgb, var(--success), white 10%); }
+.legend-dot.female { background: color-mix(in srgb, var(--warning), white 10%); }
 .chart-canvas { width: 100%; height: 100%; display: block; position: relative; z-index: 3; }
 .chart-axis {
   position: absolute;
@@ -319,6 +331,8 @@ main {
 .chart-axis .y { top: 12px; bottom: 24px; left: 24px; border-left: 1px dashed color-mix(in srgb, var(--text), transparent 88%); }
 .chart-axis .x .tick { position: absolute; bottom: -2px; transform: translate(-50%, 100%); font-size: 10px; }
 .chart-axis .y .tick { position: absolute; left: -6px; transform: translate(-100%, 50%); font-size: 10px; white-space: nowrap; }
+.chart-axis .xlabel { position: absolute; bottom: -2px; left: 50%; transform: translate(-50%, 140%); font-size: 11px; color: var(--muted); }
+.chart-axis .ylabel { position: absolute; top: 50%; left: -6px; transform: translate(-100%, -50%) rotate(-90deg); transform-origin: left top; font-size: 11px; color: var(--muted); }
 .chart-line {
   position: absolute;
   left: 0; top: 0; right: 0; bottom: 0;
