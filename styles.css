@@ -229,6 +229,7 @@ main {
   border-radius: 12px;
   overflow: hidden;
 }
+.segmented.small .seg-btn { padding: 6px 10px; font-size: 13px; }
 .seg-btn {
   padding: 8px 12px;
   font-weight: 600;
@@ -267,10 +268,18 @@ main {
   text-transform: uppercase;
   color: #cbd5e1;
 }
+.custom-panel { margin-top: 10px; }
+.range-controls { display: flex; flex-direction: column; gap: 10px; }
+.range-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-width: 240px; }
+.range-inputs input[type="range"] {
+  accent-color: var(--primary);
+}
+.range-values { display: flex; gap: 16px; color: var(--muted); }
 .mini-list { margin: 0; padding: 0; list-style: none; }
 .mini-list li {
   display: grid;
-  grid-template-columns: 1fr 8ch max-content;
+  grid-template-columns: 1fr 8ch 14ch 8ch;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
@@ -281,7 +290,7 @@ main {
 .mini-list li + li { margin-top: 8px; }
 .mini-list .who { font-weight: 700; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .mini-list .time { font-weight: 700; color: color-mix(in srgb, var(--primary), white 15%); text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
-.mini-list .meta { color: var(--muted); font-size: 12px; }
+.mini-list .date, .mini-list .age { color: var(--muted); font-size: 12px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 
 .table-container {
   margin-top: 12px;

@@ -22,6 +22,16 @@ const elements = {
   btnMale: document.getElementById('btn-male'),
   btnFemale: document.getElementById('btn-female'),
   btnCustom: document.getElementById('btn-custom'),
+  customPanel: document.getElementById('custom-panel'),
+  ageMin: document.getElementById('age-min'),
+  ageMax: document.getElementById('age-max'),
+  ageMinVal: document.getElementById('age-min-val'),
+  ageMaxVal: document.getElementById('age-max-val'),
+  cGenAll: document.getElementById('cgen-all'),
+  cGenMale: document.getElementById('cgen-male'),
+  cGenFemale: document.getElementById('cgen-female'),
+  analyzeBtn: document.getElementById('analyze-btn'),
+  customResultsList: document.getElementById('custom-results-list'),
   themeDark: document.getElementById('theme-dark'),
   themeLight: document.getElementById('theme-light'),
 };
@@ -202,19 +212,14 @@ function renderLeaderboard(eventName, gender) {
     } else {
       for (const r of list) {
         const li = document.createElement('li');
-        const who = document.createElement('span');
-        who.className = 'who';
-        who.textContent = r['Name'] || '—';
-        const time = document.createElement('span');
-        time.className = 'time';
-        time.textContent = r['Time'] || '—';
-        const meta = document.createElement('span');
-        meta.className = 'meta';
-        const date = parseDateFlexible(r['Date']);
-        meta.textContent = `${formatDate(date)} · age ${r['Age']}`;
+        const who = document.createElement('span'); who.className = 'who'; who.textContent = r['Name'] || '—';
+        const time = document.createElement('span'); time.className = 'time'; time.textContent = r['Time'] || '—';
+        const dateEl = document.createElement('span'); dateEl.className = 'date'; dateEl.textContent = formatDate(parseDateFlexible(r['Date'])) || '—';
+        const ageEl = document.createElement('span'); ageEl.className = 'age'; ageEl.textContent = `age ${r['Age']}`;
         li.appendChild(who);
         li.appendChild(time);
-        li.appendChild(meta);
+        li.appendChild(dateEl);
+        li.appendChild(ageEl);
         ul.appendChild(li);
       }
     }
@@ -233,7 +238,12 @@ function attachEventUIHandlers() {
     elements.btnMale.classList.toggle('active', g === 'male');
     elements.btnFemale.classList.toggle('active', g === 'female');
     const ev = elements.eventSelect.value;
-    if (ev) renderLeaderboard(ev, g);
+    if (g === 'custom') {
+      elements.customPanel && elements.customPanel.classList.remove('hidden');
+    } else {
+      elements.customPanel && elements.customPanel.classList.add('hidden');
+      if (ev) renderLeaderboard(ev, g);
+    }
   };
 
   elements.eventSelect.addEventListener('change', () => {
@@ -249,9 +259,76 @@ function attachEventUIHandlers() {
 
   elements.btnMale && elements.btnMale.addEventListener('click', () => setActiveGender('male'));
   elements.btnFemale && elements.btnFemale.addEventListener('click', () => setActiveGender('female'));
-  // Custom ages: placeholder, does nothing for now per requirements
-  elements.btnCustom && elements.btnCustom.addEventListener('click', () => {
-    // no-op for now
+  // Custom ages panel activation
+  elements.btnCustom && elements.btnCustom.addEventListener('click', () => setActiveGender('custom'));
+
+  // Custom controls
+  const syncRange = () => {
+    let min = Number(elements.ageMin.value);
+    let max = Number(elements.ageMax.value);
+    if (min > max) {
+      // Keep handles from crossing
+      if (document.activeElement === elements.ageMin) max = min;
+      else min = max;
+      elements.ageMin.value = String(min);
+      elements.ageMax.value = String(max);
+    }
+    elements.ageMinVal.textContent = String(min);
+    elements.ageMaxVal.textContent = String(max);
+  };
+  elements.ageMin && elements.ageMin.addEventListener('input', syncRange);
+  elements.ageMax && elements.ageMax.addEventListener('input', syncRange);
+  syncRange();
+
+  let customGender = 'all';
+  const setCustomGender = (g) => {
+    customGender = g;
+    elements.cGenAll.classList.toggle('active', g === 'all');
+    elements.cGenMale.classList.toggle('active', g === 'male');
+    elements.cGenFemale.classList.toggle('active', g === 'female');
+  };
+  elements.cGenAll && elements.cGenAll.addEventListener('click', () => setCustomGender('all'));
+  elements.cGenMale && elements.cGenMale.addEventListener('click', () => setCustomGender('male'));
+  elements.cGenFemale && elements.cGenFemale.addEventListener('click', () => setCustomGender('female'));
+
+  const renderCustomResults = (rows) => {
+    const listEl = elements.customResultsList;
+    listEl.innerHTML = '';
+    if (!rows.length) {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.className = 'meta';
+      span.textContent = 'No results';
+      li.appendChild(span);
+      listEl.appendChild(li);
+      return;
+    }
+    for (const r of rows) {
+      const li = document.createElement('li');
+      const who = document.createElement('span'); who.className = 'who'; who.textContent = r['Name'] || '—';
+      const time = document.createElement('span'); time.className = 'time'; time.textContent = r['Time'] || '—';
+      const dateEl = document.createElement('span'); dateEl.className = 'date'; dateEl.textContent = formatDate(parseDateFlexible(r['Date'])) || '—';
+      const ageEl = document.createElement('span'); ageEl.className = 'age'; ageEl.textContent = `age ${r['Age']}`;
+      li.appendChild(who); li.appendChild(time); li.appendChild(dateEl); li.appendChild(ageEl);
+      listEl.appendChild(li);
+    }
+  };
+
+  elements.analyzeBtn && elements.analyzeBtn.addEventListener('click', () => {
+    const ev = elements.eventSelect.value;
+    if (!ev) return;
+    const min = Number(elements.ageMin.value);
+    const max = Number(elements.ageMax.value);
+    const rows = allRows.filter(r => {
+      if ((r['Event'] || '').trim() !== ev) return false;
+      const age = Number(r['Age']);
+      if (!Number.isFinite(age) || age < min || age > max) return false;
+      const g = normalizeGender(r['Gender']);
+      if (customGender !== 'all' && g !== customGender) return false;
+      const t = toSeconds(r['Time']);
+      return Number.isFinite(t);
+    }).sort((a,b) => toSeconds(a['Time']) - toSeconds(b['Time']));
+    renderCustomResults(rows);
   });
 }
 
