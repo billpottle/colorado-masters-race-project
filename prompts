@@ -1,0 +1,16 @@
+==============
+
+Analysis of uploaded PDF files
+I would like you to go through the attached PDF files which have track meet results. 
+You should extract the individual performances, create a new copy of the outdoor-track-data.csv file, and then insert one row for each individual performance.
+You should include all ages of athletes. 
+All data should be consistent with the rest of the data in the sheet. 
+For instance, '100m' and not '100 meters'. 'male' instead of 'men' or 'man' etc. 
+The included events should be 100m, 200m, 400m, 800m, 1500m, 3000m, 5000m, 1600m, 1 mile, and the 3000m steeplechase. 
+If the event is not in the list, do not add it (for instance field events or hurdles or relays) 
+The date of the event should be found in the title of the file or somewhere on the page. 
+All results in one file will have the same date.
+
+
+==============
+

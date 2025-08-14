@@ -30,14 +30,14 @@ Public data has been scraped from the following sites:
 
 ## File Structure
 
-- `all-data.csv` — Main dataset containing raw race results
+- `outdoor-track-data.csv` — Main dataset containing raw race results
 - `README.md` — Project documentation
 
 ---
 
 ## How to Use
 
-1. Download or clone this repository or just open all-data.csv in any spreadsheet editor.
+1. Download or clone this repository or just open outdoor-track-data.csv in any spreadsheet editor.
 
 
 ---

@@ -693,7 +693,7 @@ async function loadData() {
   }
 
   try {
-    const response = await fetch('all-data.csv', { cache: 'no-store' });
+    const response = await fetch('outdoor-track-data.csv', { cache: 'no-store' });
     if (!response.ok) throw new Error('HTTP ' + response.status);
     const csvText = await response.text();
     const result = Papa.parse(csvText, { header: true, skipEmptyLines: true });

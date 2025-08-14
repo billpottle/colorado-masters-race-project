@@ -4,8 +4,8 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const path = require('path');
 
 // Load and parse the CSV
-const filePath = 'all-data.csv';
-const outputPath = 'all-data-fixed.csv';
+const filePath = 'data.csv';
+const outputPath = 'data-fixed.csv';
 
 const raceData = [];
 
