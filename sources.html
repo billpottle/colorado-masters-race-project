@@ -32,7 +32,7 @@
           <div class="grid" role="list">
             <div class="link-card" role="listitem" aria-label="Boulder Road Runners results">
               <h3>Boulder Road Runners</h3>
-              <p>All-Comers Summer Track & Field Meet results across years. Currently includes: (2004–2025)</p>
+              <p>All race results from the dataset. Currently includes: (2004–2025)</p>
               <div class="card-actions">
                 <a class="button" href="https://boulderroadrunners.org/race-results/track-meets/" target="_blank" rel="noopener noreferrer">Visit site</a>
                 <button id="brr-races-btn" class="button" type="button">Races</button>
@@ -143,18 +143,18 @@
         const table = document.createElement('table');
         const thead = document.createElement('thead');
         const trh = document.createElement('tr');
-        ['Date', 'Meet name', 'Results', 'Events'].forEach(h => {
+        ['Event', 'Date', 'Results', 'Meets'].forEach(h => {
           const th = document.createElement('th'); th.textContent = h; trh.appendChild(th);
         });
         thead.appendChild(trh); table.appendChild(thead);
         const tbody = document.createElement('tbody');
-        for (const r of rows) {
+                for (const r of rows) {
           const tr = document.createElement('tr');
+          const tdEvent = document.createElement('td'); tdEvent.textContent = r.event;
           const tdDate = document.createElement('td'); tdDate.textContent = formatDate(r.date);
-          const tdName = document.createElement('td'); tdName.textContent = r.name;
-                  const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
-        const tdEv = document.createElement('td'); tdEv.textContent = Array.from(r.events).sort().join(', ');
-          tr.appendChild(tdDate); tr.appendChild(tdName); tr.appendChild(tdCnt); tr.appendChild(tdEv);
+          const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
+          const tdMeets = document.createElement('td'); tdMeets.textContent = Array.from(r.meetNames).sort().join(', ');
+          tr.appendChild(tdEvent); tr.appendChild(tdDate); tr.appendChild(tdCnt); tr.appendChild(tdMeets);
           tbody.appendChild(tr);
         }
         table.appendChild(tbody);
@@ -165,21 +165,33 @@
 
       async function listBrrRaces() {
         const rows = await ensureCsvLoaded();
-        const filtered = rows.filter(r => String(r['Meet name'] || '').toLowerCase().includes('boulder road runners'));
-        const byRace = new Map();
-        for (const r of filtered) {
-          const key = raceKey(r['Date'], r['Meet name']);
-          if (!key) continue;
-          if (!byRace.has(key)) {
-            byRace.set(key, { name: r['Meet name'], date: parseDateFlexible(r['Date']), count: 0, events: new Set() });
+        // Show all unique event-date combinations
+        const byEventDate = new Map();
+        for (const r of rows) {
+          const event = (r['Event'] || '').trim();
+          const date = parseDateFlexible(r['Date']);
+          if (!event || !date) continue;
+          
+          const key = `${event}::${date.toISOString().split('T')[0]}`;
+          if (!byEventDate.has(key)) {
+            byEventDate.set(key, { 
+              event: event, 
+              date: date, 
+              count: 0, 
+              meets: new Set(),
+              meetNames: new Set()
+            });
           }
-          const agg = byRace.get(key);
+          const agg = byEventDate.get(key);
           agg.count += 1;
-          const ev = (r['Event'] || '').trim();
-          if (ev) agg.events.add(ev);
+          const meetName = (r['Meet name'] || '').trim();
+          if (meetName) {
+            agg.meets.add(meetName);
+            agg.meetNames.add(meetName);
+          }
         }
-        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'Boulder Road Runners');
+        const list = Array.from(byEventDate.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'All Events');
       }
 
       racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
