@@ -139,11 +139,11 @@
 
       function renderRacesTable(rows, title) {
         racesCard.classList.remove('hidden');
-        racesSummary.textContent = `${rows.length.toLocaleString()} race${rows.length === 1 ? '' : 's'} found` + (title ? ` for ${title}` : '');
+        racesSummary.textContent = `${rows.length.toLocaleString()} meet${rows.length === 1 ? '' : 's'} found` + (title ? ` for ${title}` : '');
         const table = document.createElement('table');
         const thead = document.createElement('thead');
         const trh = document.createElement('tr');
-        ['Date', 'Meet name', 'Entries', 'Distinct events'].forEach(h => {
+        ['Date', 'Meet name', 'Results', 'Events'].forEach(h => {
           const th = document.createElement('th'); th.textContent = h; trh.appendChild(th);
         });
         thead.appendChild(trh); table.appendChild(thead);
@@ -152,8 +152,8 @@
           const tr = document.createElement('tr');
           const tdDate = document.createElement('td'); tdDate.textContent = formatDate(r.date);
           const tdName = document.createElement('td'); tdName.textContent = r.name;
-          const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
-          const tdEv = document.createElement('td'); tdEv.textContent = r.events.size.toLocaleString();
+                  const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
+        const tdEv = document.createElement('td'); tdEv.textContent = Array.from(r.events).sort().join(', ');
           tr.appendChild(tdDate); tr.appendChild(tdName); tr.appendChild(tdCnt); tr.appendChild(tdEv);
           tbody.appendChild(tr);
         }
