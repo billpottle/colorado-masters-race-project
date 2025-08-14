@@ -263,6 +263,8 @@ main {
 }
 .link-card h3 { margin: 0 0 6px; font-size: 16px; }
 .link-card p { margin: 0; color: var(--muted); font-size: 13px; }
+.card-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+.card-actions .button { text-decoration: none; }
 
 /* Segmented control */
 .segmented {

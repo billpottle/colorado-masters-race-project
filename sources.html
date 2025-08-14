@@ -30,16 +30,29 @@
         <div class="card-content">
           <h2 id="sources-title" class="section-title"><span class="dot"></span>Sources</h2>
           <div class="grid" role="list">
-            <a class="link-card" role="listitem" href="https://boulderroadrunners.org/race-results/track-meets/" target="_blank" rel="noopener noreferrer" aria-label="Boulder Road Runners results">
+            <div class="link-card" role="listitem" aria-label="Boulder Road Runners results">
               <h3>Boulder Road Runners</h3>
-              <p>All-Comers Summer Track & Field Meet results across years. Currently includes: (2004-2014)</p>
-            </a>
+              <p>All-Comers Summer Track & Field Meet results across years. Currently includes: (2004–2014)</p>
+              <div class="card-actions">
+                <a class="button" href="https://boulderroadrunners.org/race-results/track-meets/" target="_blank" rel="noopener noreferrer">Visit site</a>
+                <button id="brr-races-btn" class="button" type="button">Races</button>
+              </div>
+            </div>
             <!-- Add more source cards here as new sources are integrated -->
           </div>
         </div>
       </section>
+
+      <section id="races-card" class="card hidden" aria-labelledby="races-title" style="margin-top: 20px;">
+        <div class="card-content">
+          <h2 id="races-title" class="section-title" style="margin: 0;"><span class="dot"></span>Races</h2>
+          <div id="races-summary" class="subtitle" style="margin-top: 6px;"></div>
+          <div id="races-output" class="table-container" style="margin-top: 12px;"></div>
+        </div>
+      </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script>
       // Minimal theme sync (reuse same keys as main)
       const themeDark = document.getElementById('theme-dark');
@@ -60,6 +73,116 @@
       applyTheme(stored);
       themeDark && themeDark.addEventListener('click', () => { localStorage.setItem('cmrp-theme','dark'); applyTheme('dark'); });
       themeLight && themeLight.addEventListener('click', () => { localStorage.setItem('cmrp-theme','light'); applyTheme('light'); });
+
+      // Races listing
+      const racesBtn = document.getElementById('brr-races-btn');
+      const racesCard = document.getElementById('races-card');
+      const racesOutput = document.getElementById('races-output');
+      const racesSummary = document.getElementById('races-summary');
+
+      let loadedRows = null;
+
+      const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
+      function toTwoDigitYear(y) {
+        const num = Number(y);
+        return num < 100 ? (num + 2000) : num;
+      }
+      function parseDateFlexible(input) {
+        if (!input || typeof input !== 'string') return null;
+        const raw = input.trim();
+        if (raw.includes('-')) {
+          const parts = raw.split('-');
+          if (parts.length === 3) {
+            const [d, m, y] = parts;
+            const day = Number(d);
+            const mon = MONTHS[m.toLowerCase().slice(0,3)];
+            const year = toTwoDigitYear(y);
+            if (!Number.isNaN(day) && mon >= 0 && !Number.isNaN(year)) {
+              return new Date(year, mon, day);
+            }
+          }
+        }
+        if (raw.includes('/')) {
+          const [mm, dd, yy] = raw.split('/').map(s => s.trim());
+          const month = Number(mm) - 1;
+          const day = Number(dd);
+          const year = toTwoDigitYear(yy);
+          if (!Number.isNaN(month) && !Number.isNaN(day) && !Number.isNaN(year)) {
+            return new Date(year, month, day);
+          }
+        }
+        const parsed = new Date(raw);
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+      function formatDate(date) {
+        if (!date) return '—';
+        const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        return fmt.format(date);
+      }
+      function raceKey(dateStr, meetName) {
+        const date = parseDateFlexible(dateStr);
+        const name = (meetName || '').trim();
+        if (!date || !name) return null;
+        const key = [date.getFullYear(), String(date.getMonth()+1).padStart(2,'0'), String(date.getDate()).padStart(2,'0')].join('-');
+        return key + '::' + name.toLowerCase();
+      }
+
+      async function ensureCsvLoaded() {
+        if (loadedRows) return loadedRows;
+        const resp = await fetch('outdoor-track-data.csv', { cache: 'no-store' });
+        if (!resp.ok) throw new Error('Failed to load CSV');
+        const text = await resp.text();
+        const result = Papa.parse(text, { header: true, skipEmptyLines: true });
+        loadedRows = result.data || [];
+        return loadedRows;
+      }
+
+      function renderRacesTable(rows, title) {
+        racesCard.classList.remove('hidden');
+        racesSummary.textContent = `${rows.length.toLocaleString()} race${rows.length === 1 ? '' : 's'} found` + (title ? ` for ${title}` : '');
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const trh = document.createElement('tr');
+        ['Date', 'Meet name', 'Entries', 'Distinct events'].forEach(h => {
+          const th = document.createElement('th'); th.textContent = h; trh.appendChild(th);
+        });
+        thead.appendChild(trh); table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        for (const r of rows) {
+          const tr = document.createElement('tr');
+          const tdDate = document.createElement('td'); tdDate.textContent = formatDate(r.date);
+          const tdName = document.createElement('td'); tdName.textContent = r.name;
+          const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
+          const tdEv = document.createElement('td'); tdEv.textContent = r.events.size.toLocaleString();
+          tr.appendChild(tdDate); tr.appendChild(tdName); tr.appendChild(tdCnt); tr.appendChild(tdEv);
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        racesOutput.innerHTML = '';
+        racesOutput.appendChild(table);
+        racesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      async function listBrrRaces() {
+        const rows = await ensureCsvLoaded();
+        const filtered = rows.filter(r => String(r['Meet name'] || '').toLowerCase().includes('boulder road runners'));
+        const byRace = new Map();
+        for (const r of filtered) {
+          const key = raceKey(r['Date'], r['Meet name']);
+          if (!key) continue;
+          if (!byRace.has(key)) {
+            byRace.set(key, { name: r['Meet name'], date: parseDateFlexible(r['Date']), count: 0, events: new Set() });
+          }
+          const agg = byRace.get(key);
+          agg.count += 1;
+          const ev = (r['Event'] || '').trim();
+          if (ev) agg.events.add(ev);
+        }
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'Boulder Road Runners');
+      }
+
+      racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
     </script>
   </body>
   </html>
