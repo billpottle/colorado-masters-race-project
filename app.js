@@ -8,8 +8,7 @@ const elements = {
   perfMale: document.getElementById('perf-male'),
   perfFemale: document.getElementById('perf-female'),
   perfBreakdown: document.getElementById('perf-breakdown'),
-  meetTotal: document.getElementById('meet-total'),
-  raceTotal: document.getElementById('race-total'),
+  meetsRaces: document.getElementById('meets-races'),
   earliest: document.getElementById('race-earliest'),
   latest: document.getElementById('race-latest'),
   searchInput: document.getElementById('search-input'),
@@ -728,8 +727,7 @@ async function loadData() {
           elements.perfMale.textContent = stats.male.toLocaleString();
           elements.perfFemale.textContent = stats.female.toLocaleString();
           elements.perfBreakdown.textContent = `M ${stats.male.toLocaleString()} · F ${stats.female.toLocaleString()}`;
-          elements.meetTotal.textContent = stats.meets.toLocaleString();
-          elements.raceTotal.textContent = stats.races.toLocaleString();
+          elements.meetsRaces.textContent = `${stats.meets.toLocaleString()} / ${stats.races.toLocaleString()}`;
           elements.earliest.textContent = formatDate(stats.earliest);
           elements.latest.textContent = formatDate(stats.latest);
           elements.error.classList.add('hidden');
@@ -766,7 +764,7 @@ async function loadData() {
     elements.perfMale.textContent = stats.male.toLocaleString();
     elements.perfFemale.textContent = stats.female.toLocaleString();
     elements.perfBreakdown.textContent = `M ${stats.male.toLocaleString()} · F ${stats.female.toLocaleString()}`;
-    elements.raceTotal.textContent = stats.races.toLocaleString();
+    elements.meetsRaces.textContent = `${stats.meets.toLocaleString()} / ${stats.races.toLocaleString()}`;
     elements.earliest.textContent = formatDate(stats.earliest);
     elements.latest.textContent = formatDate(stats.latest);
     populateEventDropdown(rows);
