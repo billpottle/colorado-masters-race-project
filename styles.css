@@ -301,6 +301,39 @@ main {
 .card-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
 .card-actions .button { text-decoration: none; }
 
+/* Disclaimers */
+.disclaimer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.disclaimer-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: color-mix(in srgb, var(--card), transparent 85%);
+  border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
+  border-radius: 12px;
+}
+
+.disclaimer-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.disclaimer-content {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.disclaimer-content strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 /* Segmented control */
 .segmented {
   display: inline-flex;

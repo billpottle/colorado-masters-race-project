@@ -57,6 +57,20 @@
                 <button id="fcrc-races-btn" class="button" type="button">Races</button>
               </div>
             </div>
+            
+            <div class="link-card" role="listitem" aria-label="Colorado Senior Games results">
+              <div class="card-header-with-logo">
+                <img src="img/CO-Senior-Games-No-Year.svg" alt="Colorado Senior Games Logo" class="source-logo">
+                <div class="card-title-section">
+                  <h3>Colorado Senior Games</h3>
+                  <p>Track and Field competition for athletes 50+ at Garry Berry Stadium in Colorado Springs. Currently includes: (2025)</p>
+                </div>
+              </div>
+              <div class="card-actions">
+                <a class="button" href="https://coloradoseniorgames.org/sport/track-and-field/" target="_blank" rel="noopener noreferrer">Visit site</a>
+                <button id="csg-races-btn" class="button" type="button">Races</button>
+              </div>
+            </div>
             <!-- Add more source cards here as new sources are integrated -->
           </div>
         </div>
@@ -66,7 +80,27 @@
         <div class="card-content">
           <h2 id="races-title" class="section-title" style="margin: 0;"><span class="dot"></span>Races</h2>
           <div id="races-summary" class="subtitle" style="margin-top: 6px;"></div>
-          <div id="races-output" class="table-container" style="margin-top: 12px;"></div>
+          <div id="races-output" class="table-container" style="margin-top: 12px;">          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="disclaimers-title" style="margin-top: 20px;">
+        <div class="card-content">
+          <h2 id="disclaimers-title" class="section-title"><span class="dot"></span>Disclaimers</h2>
+          <div class="disclaimer-list">
+            <div class="disclaimer-item">
+              <div class="disclaimer-icon">⚠️</div>
+              <div class="disclaimer-content">
+                <strong>Mixed Gender Divisions:</strong> A few events have 'mixed' divisions where gender was a best guess based on name. We are happy to correct any issues.
+              </div>
+            </div>
+            <div class="disclaimer-item">
+              <div class="disclaimer-icon">📅</div>
+              <div class="disclaimer-content">
+                <strong>January 1st Dates:</strong> If a performance is listed as occurring on January 1st, that means only the year of the event was available.
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -246,10 +280,45 @@
         renderRacesTable(list, 'Fort Collins Running Club');
       }
 
+      async function listCsgRaces() {
+        const rows = await ensureCsvLoaded();
+        // Filter by CSG source
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'CSG');
+        const byEventDate = new Map();
+        for (const r of filtered) {
+          const event = (r['Event'] || '').trim();
+          const date = parseDateFlexible(r['Date']);
+          if (!event || !date) continue;
+          
+          const key = `${event}::${date.toISOString().split('T')[0]}`;
+          if (!byEventDate.has(key)) {
+            byEventDate.set(key, { 
+              event: event, 
+              date: date, 
+              count: 0, 
+              meets: new Set(),
+              meetNames: new Set()
+            });
+          }
+          const agg = byEventDate.get(key);
+          agg.count += 1;
+          const meetName = (r['Meet name'] || '').trim();
+          if (meetName) {
+            agg.meets.add(meetName);
+            agg.meetNames.add(meetName);
+          }
+        }
+        const list = Array.from(byEventDate.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'Colorado Senior Games');
+      }
+
       racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
       
       const fcrcRacesBtn = document.getElementById('fcrc-races-btn');
       fcrcRacesBtn && fcrcRacesBtn.addEventListener('click', () => { listFcrcRaces().catch(console.error); });
+      
+      const csgRacesBtn = document.getElementById('csg-races-btn');
+      csgRacesBtn && csgRacesBtn.addEventListener('click', () => { listCsgRaces().catch(console.error); });
     </script>
   </body>
   </html>
