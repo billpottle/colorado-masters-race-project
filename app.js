@@ -44,7 +44,12 @@ const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, 
 
 function toTwoDigitYear(y) {
   const num = Number(y);
-  return num < 100 ? (num + 2000) : num;
+  if (num < 100) {
+    // For 2-digit years, assume 19xx for years 50-99 and 20xx for years 00-49
+    // This handles Colorado Senior Games data from 1990s properly
+    return num >= 50 ? (1900 + num) : (2000 + num);
+  }
+  return num;
 }
 
 function parseDateFlexible(input) {

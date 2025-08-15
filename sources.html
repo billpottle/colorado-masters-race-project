@@ -63,12 +63,25 @@
                 <img src="img/CO-Senior-Games-No-Year.svg" alt="Colorado Senior Games Logo" class="source-logo">
                 <div class="card-title-section">
                   <h3>Colorado Senior Games</h3>
-                  <p>Track and Field competition for athletes 50+ at Garry Berry Stadium in Colorado Springs. Currently includes: (2025)</p>
+                  <p>Track and Field competition for athletes 50+ at Garry Berry Stadium in Colorado Springs. Currently includes: (All time records)</p>
                 </div>
               </div>
               <div class="card-actions">
                 <a class="button" href="https://coloradoseniorgames.org/sport/track-and-field/" target="_blank" rel="noopener noreferrer">Visit site</a>
                 <button id="csg-races-btn" class="button" type="button">Races</button>
+              </div>
+            </div>
+            
+            <div class="link-card" role="listitem" aria-label="Western Colorado Senior Games results">
+              <div class="card-header-with-logo">
+                <img src="img/WesternCOSrGames.png" alt="Western Colorado Senior Games Logo" class="source-logo">
+                <div class="card-title-section">
+                  <h3>Western Colorado Senior Games</h3>
+                  <p>Track and Field competition for athletes 50+. Currently includes: (2023–2024)</p>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button id="wcsg-races-btn" class="button" type="button">Races</button>
               </div>
             </div>
             <!-- Add more source cards here as new sources are integrated -->
@@ -201,18 +214,18 @@
         const table = document.createElement('table');
         const thead = document.createElement('thead');
         const trh = document.createElement('tr');
-        ['Event', 'Date', 'Results', 'Meets'].forEach(h => {
+        ['Meet Name', 'Date', 'Results', 'Events'].forEach(h => {
           const th = document.createElement('th'); th.textContent = h; trh.appendChild(th);
         });
         thead.appendChild(trh); table.appendChild(thead);
         const tbody = document.createElement('tbody');
                 for (const r of rows) {
           const tr = document.createElement('tr');
-          const tdEvent = document.createElement('td'); tdEvent.textContent = r.event;
+          const tdMeetName = document.createElement('td'); tdMeetName.textContent = r.meetName;
           const tdDate = document.createElement('td'); tdDate.textContent = formatDate(r.date);
           const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
-          const tdMeets = document.createElement('td'); tdMeets.textContent = Array.from(r.meetNames).sort().join(', ');
-          tr.appendChild(tdEvent); tr.appendChild(tdDate); tr.appendChild(tdCnt); tr.appendChild(tdMeets);
+          const tdEvents = document.createElement('td'); tdEvents.textContent = Array.from(r.events).sort().join(', ');
+          tr.appendChild(tdMeetName); tr.appendChild(tdDate); tr.appendChild(tdCnt); tr.appendChild(tdEvents);
           tbody.appendChild(tr);
         }
         table.appendChild(tbody);
@@ -225,31 +238,29 @@
         const rows = await ensureCsvLoaded();
         // Filter by BRR source
         const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'BRR');
-        const byEventDate = new Map();
+        const byRace = new Map();
         for (const r of filtered) {
-          const event = (r['Event'] || '').trim();
+          const meetName = (r['Meet name'] || '').trim();
           const date = parseDateFlexible(r['Date']);
-          if (!event || !date) continue;
+          if (!meetName || !date) continue;
           
-          const key = `${event}::${date.toISOString().split('T')[0]}`;
-          if (!byEventDate.has(key)) {
-            byEventDate.set(key, { 
-              event: event, 
+          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
+          if (!byRace.has(key)) {
+            byRace.set(key, { 
+              meetName: meetName, 
               date: date, 
               count: 0, 
-              meets: new Set(),
-              meetNames: new Set()
+              events: new Set()
             });
           }
-          const agg = byEventDate.get(key);
+          const agg = byRace.get(key);
           agg.count += 1;
-          const meetName = (r['Meet name'] || '').trim();
-          if (meetName) {
-            agg.meets.add(meetName);
-            agg.meetNames.add(meetName);
+          const event = (r['Event'] || '').trim();
+          if (event) {
+            agg.events.add(event);
           }
         }
-        const list = Array.from(byEventDate.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
         renderRacesTable(list, 'Boulder Road Runners');
       }
 
@@ -257,31 +268,29 @@
         const rows = await ensureCsvLoaded();
         // Filter by FCTC source
         const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'FCTC');
-        const byEventDate = new Map();
+        const byRace = new Map();
         for (const r of filtered) {
-          const event = (r['Event'] || '').trim();
+          const meetName = (r['Meet name'] || '').trim();
           const date = parseDateFlexible(r['Date']);
-          if (!event || !date) continue;
+          if (!meetName || !date) continue;
           
-          const key = `${event}::${date.toISOString().split('T')[0]}`;
-          if (!byEventDate.has(key)) {
-            byEventDate.set(key, { 
-              event: event, 
+          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
+          if (!byRace.has(key)) {
+            byRace.set(key, { 
+              meetName: meetName, 
               date: date, 
               count: 0, 
-              meets: new Set(),
-              meetNames: new Set()
+              events: new Set()
             });
           }
-          const agg = byEventDate.get(key);
+          const agg = byRace.get(key);
           agg.count += 1;
-          const meetName = (r['Meet name'] || '').trim();
-          if (meetName) {
-            agg.meets.add(meetName);
-            agg.meetNames.add(meetName);
+          const event = (r['Event'] || '').trim();
+          if (event) {
+            agg.events.add(event);
           }
         }
-        const list = Array.from(byEventDate.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
         renderRacesTable(list, 'Fort Collins Running Club');
       }
 
@@ -289,32 +298,60 @@
         const rows = await ensureCsvLoaded();
         // Filter by CSG source
         const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'CSG');
-        const byEventDate = new Map();
+        const byRace = new Map();
         for (const r of filtered) {
-          const event = (r['Event'] || '').trim();
+          const meetName = (r['Meet name'] || '').trim();
           const date = parseDateFlexible(r['Date']);
-          if (!event || !date) continue;
+          if (!meetName || !date) continue;
           
-          const key = `${event}::${date.toISOString().split('T')[0]}`;
-          if (!byEventDate.has(key)) {
-            byEventDate.set(key, { 
-              event: event, 
+          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
+          if (!byRace.has(key)) {
+            byRace.set(key, { 
+              meetName: meetName, 
               date: date, 
               count: 0, 
-              meets: new Set(),
-              meetNames: new Set()
+              events: new Set()
             });
           }
-          const agg = byEventDate.get(key);
+          const agg = byRace.get(key);
           agg.count += 1;
-          const meetName = (r['Meet name'] || '').trim();
-          if (meetName) {
-            agg.meets.add(meetName);
-            agg.meetNames.add(meetName);
+          const event = (r['Event'] || '').trim();
+          if (event) {
+            agg.events.add(event);
           }
         }
-        const list = Array.from(byEventDate.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
         renderRacesTable(list, 'Colorado Senior Games');
+      }
+
+      async function listWcsgRaces() {
+        const rows = await ensureCsvLoaded();
+        // Filter by WCSG source
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'WCSG');
+        const byRace = new Map();
+        for (const r of filtered) {
+          const meetName = (r['Meet name'] || '').trim();
+          const date = parseDateFlexible(r['Date']);
+          if (!meetName || !date) continue;
+          
+          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
+          if (!byRace.has(key)) {
+            byRace.set(key, { 
+              meetName: meetName, 
+              date: date, 
+              count: 0, 
+              events: new Set()
+            });
+          }
+          const agg = byRace.get(key);
+          agg.count += 1;
+          const event = (r['Event'] || '').trim();
+          if (event) {
+            agg.events.add(event);
+          }
+        }
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'Western Colorado Senior Games');
       }
 
       racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
@@ -324,6 +361,9 @@
       
       const csgRacesBtn = document.getElementById('csg-races-btn');
       csgRacesBtn && csgRacesBtn.addEventListener('click', () => { listCsgRaces().catch(console.error); });
+      
+      const wcsgRacesBtn = document.getElementById('wcsg-races-btn');
+      wcsgRacesBtn && wcsgRacesBtn.addEventListener('click', () => { listWcsgRaces().catch(console.error); });
     </script>
   </body>
   </html>
