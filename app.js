@@ -8,6 +8,7 @@ const elements = {
   perfMale: document.getElementById('perf-male'),
   perfFemale: document.getElementById('perf-female'),
   perfBreakdown: document.getElementById('perf-breakdown'),
+  meetTotal: document.getElementById('meet-total'),
   raceTotal: document.getElementById('race-total'),
   earliest: document.getElementById('race-earliest'),
   latest: document.getElementById('race-latest'),
@@ -97,7 +98,7 @@ function normalizeGender(g) {
   return 'unknown';
 }
 
-function raceKey(dateStr, meetName) {
+function meetKey(dateStr, meetName) {
   const date = parseDateFlexible(dateStr);
   const name = (meetName || '').trim();
   if (!date || !name) return null;
@@ -109,6 +110,7 @@ function computeStats(rows) {
   let total = 0;
   let male = 0;
   let female = 0;
+  const meetSet = new Set();
   const raceSet = new Set();
 
   let earliest = null;
@@ -119,8 +121,16 @@ function computeStats(rows) {
     const g = normalizeGender(r['Gender']);
     if (g === 'male') male += 1; else if (g === 'female') female += 1;
 
-    const k = raceKey(r['Date'], r['Meet name']);
-    if (k) raceSet.add(k);
+    // Create unique meet key (meet name + date)
+    const k = meetKey(r['Date'], r['Meet name']);
+    if (k) meetSet.add(k);
+
+    // Create unique race key (meet name + date + event)
+    const event = (r['Event'] || '').trim();
+    if (event) {
+      const raceKey = k + '::' + event.toLowerCase();
+      raceSet.add(raceKey);
+    }
 
     const d = parseDateFlexible(r['Date']);
     if (d) {
@@ -129,7 +139,7 @@ function computeStats(rows) {
     }
   }
 
-  return { total, male, female, races: raceSet.size, earliest, latest };
+  return { total, male, female, meets: meetSet.size, races: raceSet.size, earliest, latest };
 }
 
 // Age groups configuration
@@ -718,6 +728,7 @@ async function loadData() {
           elements.perfMale.textContent = stats.male.toLocaleString();
           elements.perfFemale.textContent = stats.female.toLocaleString();
           elements.perfBreakdown.textContent = `M ${stats.male.toLocaleString()} · F ${stats.female.toLocaleString()}`;
+          elements.meetTotal.textContent = stats.meets.toLocaleString();
           elements.raceTotal.textContent = stats.races.toLocaleString();
           elements.earliest.textContent = formatDate(stats.earliest);
           elements.latest.textContent = formatDate(stats.latest);
