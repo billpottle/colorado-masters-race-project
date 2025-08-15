@@ -144,7 +144,9 @@ const AGE_GROUPS = [
   { label: '65-69', min: 65, max: 69 },
   { label: '70-74', min: 70, max: 74 },
   { label: '75-79', min: 75, max: 79 },
-  { label: '80+', min: 80, max: Infinity },
+  { label: '80-84', min: 80, max: 84 },
+  { label: '85-89', min: 85, max: 89 },
+  { label: '90-94', min: 90, max: 94 },
 ];
 
 function toSeconds(timeStr) {
