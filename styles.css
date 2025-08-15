@@ -276,7 +276,7 @@ main {
   height: 60px;
   object-fit: contain;
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card), transparent 80%);
+  background: white;
   border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
   flex-shrink: 0;
 }

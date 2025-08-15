@@ -192,8 +192,24 @@ function filterRowsForLeaderboard(eventName, gender) {
     if (ev !== eventName) return false;
     const g = normalizeGender(r['Gender']);
     if (desiredGender && g !== desiredGender) return false;
-    const age = Number(r['Age']);
-    if (!Number.isFinite(age)) return false;
+    
+    // Handle both numerical ages and age ranges like "85-89"
+    const ageStr = String(r['Age'] || '').trim();
+    let age = Number(ageStr);
+    let ageRange = null;
+    
+    if (!Number.isFinite(age)) {
+      // Check if it's an age range like "85-89"
+      if (ageStr.includes('-')) {
+        const parts = ageStr.split('-').map(s => Number(s.trim()));
+        if (parts.length === 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+          ageRange = { min: parts[0], max: parts[1] };
+        }
+      }
+      // If neither numerical nor valid range, skip this row
+      if (!ageRange) return false;
+    }
+    
     const t = toSeconds(r['Time']);
     return Number.isFinite(t);
   });
@@ -205,13 +221,35 @@ function renderLeaderboard(eventName, gender) {
   const byGroup = new Map();
   for (const group of AGE_GROUPS) byGroup.set(group.label, []);
   for (const r of rows) {
-    const age = Number(r['Age']);
-    for (const group of AGE_GROUPS) {
-      if (age >= group.min && age <= group.max) {
-        byGroup.get(group.label).push(r);
-        break;
+    const ageStr = String(r['Age'] || '').trim();
+    let age = Number(ageStr);
+    let ageRange = null;
+    
+    if (!Number.isFinite(age)) {
+      // Check if it's an age range like "85-89"
+      if (ageStr.includes('-')) {
+        const parts = ageStr.split('-').map(s => Number(s.trim()));
+        if (parts.length === 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+          ageRange = { min: parts[0], max: parts[1] };
+        }
       }
-      if (group.max === Infinity && age >= group.min) {
+    }
+    
+    for (const group of AGE_GROUPS) {
+      let shouldInclude = false;
+      
+      if (ageRange) {
+        // For age ranges, check if there's any overlap with the age group
+        shouldInclude = (ageRange.min <= group.max && ageRange.max >= group.min);
+      } else {
+        // For numerical ages, use the existing logic
+        shouldInclude = (age >= group.min && age <= group.max);
+        if (group.max === Infinity && age >= group.min) {
+          shouldInclude = true;
+        }
+      }
+      
+      if (shouldInclude) {
         byGroup.get(group.label).push(r);
         break;
       }
@@ -382,8 +420,12 @@ function attachEventUIHandlers() {
     const max = Number(elements.ageMax?.value ?? 100);
     const rows = allRows.filter(r => {
       if ((r['Event'] || '').trim() !== ev) return false;
-      const age = Number(r['Age']);
+      
+      // For custom age analysis, only include numerical ages (exclude age ranges)
+      const ageStr = String(r['Age'] || '').trim();
+      const age = Number(ageStr);
       if (!Number.isFinite(age) || age < min || age > max) return false;
+      
       const g = normalizeGender(r['Gender']);
       if (customGender !== 'all' && g !== customGender) return false;
       const t = toSeconds(r['Time']);

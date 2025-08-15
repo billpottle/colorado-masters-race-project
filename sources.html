@@ -138,7 +138,12 @@
       const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
       function toTwoDigitYear(y) {
         const num = Number(y);
-        return num < 100 ? (num + 2000) : num;
+        if (num < 100) {
+          // For 2-digit years, assume 19xx for years 50-99 and 20xx for years 00-49
+          // This handles Colorado Senior Games data from 1990s properly
+          return num >= 50 ? (1900 + num) : (2000 + num);
+        }
+        return num;
       }
       function parseDateFlexible(input) {
         if (!input || typeof input !== 'string') return null;
@@ -250,8 +255,8 @@
 
       async function listFcrcRaces() {
         const rows = await ensureCsvLoaded();
-        // Filter by FCRC source
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'FCRC');
+        // Filter by FCTC source
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'FCTC');
         const byEventDate = new Map();
         for (const r of filtered) {
           const event = (r['Event'] || '').trim();
