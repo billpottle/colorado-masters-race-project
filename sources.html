@@ -31,11 +31,30 @@
           <h2 id="sources-title" class="section-title"><span class="dot"></span>Sources</h2>
           <div class="grid" role="list">
             <div class="link-card" role="listitem" aria-label="Boulder Road Runners results">
-              <h3>Boulder Road Runners</h3>
-              <p>All race results from the dataset. Currently includes: (2004–2025)</p>
+              <div class="card-header-with-logo">
+                <img src="img/logo-BRR.png" alt="Boulder Road Runners Logo" class="source-logo">
+                <div class="card-title-section">
+                  <h3>Boulder Road Runners</h3>
+                  <p>All-Comers Summer Track & Field Meet results across years, plus Mile High Mile races. Currently includes: (2004–2025)</p>
+                </div>
+              </div>
               <div class="card-actions">
                 <a class="button" href="https://boulderroadrunners.org/race-results/track-meets/" target="_blank" rel="noopener noreferrer">Visit site</a>
                 <button id="brr-races-btn" class="button" type="button">Races</button>
+              </div>
+            </div>
+            
+            <div class="link-card" role="listitem" aria-label="Fort Collins Running Club results">
+              <div class="card-header-with-logo">
+                <img src="img/FCRC-Logo-Full.webp" alt="Fort Collins Running Club Logo" class="source-logo">
+                <div class="card-title-section">
+                  <h3>Fort Collins Running Club</h3>
+                  <p>NoCo All Comers Track Meet Series at Loveland High School. Masters results: 2022–2023. No masters results for 2024–2025.</p>
+                </div>
+              </div>
+              <div class="card-actions">
+                <a class="button" href="https://fortcollinsrunningclub.org/noco-all-comers-track-meets/" target="_blank" rel="noopener noreferrer">Visit site</a>
+                <button id="fcrc-races-btn" class="button" type="button">Races</button>
               </div>
             </div>
             <!-- Add more source cards here as new sources are integrated -->
@@ -165,9 +184,10 @@
 
       async function listBrrRaces() {
         const rows = await ensureCsvLoaded();
-        // Show all unique event-date combinations
+        // Filter by BRR source
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'BRR');
         const byEventDate = new Map();
-        for (const r of rows) {
+        for (const r of filtered) {
           const event = (r['Event'] || '').trim();
           const date = parseDateFlexible(r['Date']);
           if (!event || !date) continue;
@@ -191,10 +211,45 @@
           }
         }
         const list = Array.from(byEventDate.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'All Events');
+        renderRacesTable(list, 'Boulder Road Runners');
+      }
+
+      async function listFcrcRaces() {
+        const rows = await ensureCsvLoaded();
+        // Filter by FCRC source
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'FCRC');
+        const byEventDate = new Map();
+        for (const r of filtered) {
+          const event = (r['Event'] || '').trim();
+          const date = parseDateFlexible(r['Date']);
+          if (!event || !date) continue;
+          
+          const key = `${event}::${date.toISOString().split('T')[0]}`;
+          if (!byEventDate.has(key)) {
+            byEventDate.set(key, { 
+              event: event, 
+              date: date, 
+              count: 0, 
+              meets: new Set(),
+              meetNames: new Set()
+            });
+          }
+          const agg = byEventDate.get(key);
+          agg.count += 1;
+          const meetName = (r['Meet name'] || '').trim();
+          if (meetName) {
+            agg.meets.add(meetName);
+            agg.meetNames.add(meetName);
+          }
+        }
+        const list = Array.from(byEventDate.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'Fort Collins Running Club');
       }
 
       racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
+      
+      const fcrcRacesBtn = document.getElementById('fcrc-races-btn');
+      fcrcRacesBtn && fcrcRacesBtn.addEventListener('click', () => { listFcrcRaces().catch(console.error); });
     </script>
   </body>
   </html>
