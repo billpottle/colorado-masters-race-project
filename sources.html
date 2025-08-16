@@ -84,6 +84,18 @@
                 <button id="wcsg-races-btn" class="button" type="button">Meets</button>
               </div>
             </div>
+            <div class="link-card">
+              <div class="card-header-with-logo">
+                <img src="img/denver-athletics.webp" alt="Denver Athletics" class="source-logo">
+                <div class="card-title-section">
+                  <h3>Denver Athletics</h3>
+                  <p>Track and Field meets in the Denver area. Currently includes: (2024–2025)</p>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button id="da-races-btn" class="button" type="button">Meets</button>
+              </div>
+            </div>
             <!-- Add more source cards here as new sources are integrated -->
           </div>
         </div>
@@ -354,6 +366,36 @@
         renderRacesTable(list, 'Western Colorado Senior Games');
       }
 
+      async function listDaRaces() {
+        const rows = await ensureCsvLoaded();
+        // Filter by DA source
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'DA');
+        const byRace = new Map();
+        for (const r of filtered) {
+          const meetName = (r['Meet name'] || '').trim();
+          const date = parseDateFlexible(r['Date']);
+          if (!meetName || !date) continue;
+          
+          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
+          if (!byRace.has(key)) {
+            byRace.set(key, { 
+              meetName: meetName, 
+              date: date, 
+              count: 0, 
+              events: new Set()
+            });
+          }
+          const agg = byRace.get(key);
+          agg.count += 1;
+          const event = (r['Event'] || '').trim();
+          if (event) {
+            agg.events.add(event);
+          }
+        }
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'Denver Athletics');
+      }
+
       racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
       
       const fcrcRacesBtn = document.getElementById('fcrc-races-btn');
@@ -364,6 +406,9 @@
       
       const wcsgRacesBtn = document.getElementById('wcsg-races-btn');
       wcsgRacesBtn && wcsgRacesBtn.addEventListener('click', () => { listWcsgRaces().catch(console.error); });
+      
+      const daRacesBtn = document.getElementById('da-races-btn');
+      daRacesBtn && daRacesBtn.addEventListener('click', () => { listDaRaces().catch(console.error); });
     </script>
   </body>
   </html>
