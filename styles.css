@@ -359,6 +359,52 @@ main {
   border-right: 1px solid color-mix(in srgb, var(--primary), transparent 65%);
 }
 
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-container input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background: var(--muted);
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.toggle-slider:before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-container input[type="checkbox"]:checked + .toggle-slider {
+  background: var(--accent);
+}
+
+.toggle-container input[type="checkbox"]:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.toggle-label {
+  font-size: 13px;
+  color: var(--text);
+}
+
 /* Age group grid */
 .age-grid {
   display: grid;

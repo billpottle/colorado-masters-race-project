@@ -3,7 +3,7 @@
 Analysis of uploaded PDF files
 I would like you to go through the attached PDF files which have track meet results. 
 You should extract the individual performances, create a new copy of the outdoor-track-data.csv file, and then insert one row for each individual performance.
-You should include all ages of athletes. 
+You should only include results from athletes 30 years old and older. 
 All data should be consistent with the rest of the data in the sheet. 
 For instance, '100m' and not '100 meters'. 'male' instead of 'men' or 'man' etc. 
 The included events should be 100m, 200m, 400m, 800m, 1500m, 3000m, 5000m, 1600m, 1 mile, and the 3000m steeplechase. 
@@ -14,3 +14,14 @@ All results in one file will have the same date.
 
 ==============
 
+Agent Mode for Single Race Result
+
+I would like you to go through track meet results at <url>
+You should extract the individual performances, create a new copy of the outdoor-track-data.csv file, and then insert one row for each individual performance.
+You should only include results from athletes 30 years old and older. 
+All data should be consistent with the rest of the data in the sheet. 
+For instance, '100m' and not '100 meters'. 'male' instead of 'men' or 'man' etc. 
+The included events should be 100m, 200m, 400m, 800m, 1500m, 3000m, 5000m, 1600m, 1 mile, and the 3000m steeplechase. 
+If the event is not in the list, do not add it (for instance field events or hurdles or relays) 
+The date of the meet is July 25th, 2025 and the meet name is Denver Twilight Series - the finale
+All results in one file will have the date and meet name

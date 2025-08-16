@@ -22,6 +22,7 @@ const elements = {
   btnMale: document.getElementById('btn-male'),
   btnFemale: document.getElementById('btn-female'),
   btnCustom: document.getElementById('btn-custom'),
+  onePerAthlete: document.getElementById('one-per-athlete'),
   customPanel: document.getElementById('custom-panel'),
   ageMin: document.getElementById('age-min'),
   ageMax: document.getElementById('age-max'),
@@ -231,9 +232,30 @@ function filterRowsForLeaderboard(eventName, gender) {
   });
 }
 
+function filterOnePerAthlete(rows, eventName) {
+  if (!elements.onePerAthlete.checked) return rows;
+  
+  const athleteBestTimes = new Map();
+  
+  for (const row of rows) {
+    const athleteName = (row['Name'] || '').trim();
+    const time = toSeconds(row['Time']);
+    
+    if (!athleteName || !Number.isFinite(time)) continue;
+    
+    const key = athleteName.toLowerCase();
+    if (!athleteBestTimes.has(key) || time < athleteBestTimes.get(key).time) {
+      athleteBestTimes.set(key, { ...row, time });
+    }
+  }
+  
+  return Array.from(athleteBestTimes.values());
+}
+
 function renderLeaderboard(eventName, gender) {
   if (!elements.leaderboardContainer) return;
-  const rows = filterRowsForLeaderboard(eventName, gender);
+  let rows = filterRowsForLeaderboard(eventName, gender);
+  rows = filterOnePerAthlete(rows, eventName);
   const byGroup = new Map();
   for (const group of AGE_GROUPS) byGroup.set(group.label, []);
   for (const r of rows) {
@@ -353,11 +375,25 @@ function attachEventUIHandlers() {
   // Custom ages panel activation
   elements.btnCustom && elements.btnCustom.addEventListener('click', () => setActiveGender('custom'));
 
+  // One per athlete toggle
+  elements.onePerAthlete && elements.onePerAthlete.addEventListener('change', () => {
+    const ev = elements.eventSelect.value;
+    if (ev && currentGender !== 'custom') {
+      renderLeaderboard(ev, currentGender);
+    }
+    // Save toggle state to localStorage
+    localStorage.setItem('cmrp-one-per-athlete', elements.onePerAthlete.checked);
+  });
+
   // Analyze entire event: best time per age for male and female
   const analyzeEvent = () => {
     const ev = elements.eventSelect && elements.eventSelect.value;
     if (!ev) return;
-    const data = allRows.filter(r => (r['Event'] || '').trim() === ev && Number.isFinite(Number(r['Age'])) && Number.isFinite(toSeconds(r['Time'])));
+    let data = allRows.filter(r => (r['Event'] || '').trim() === ev && Number.isFinite(Number(r['Age'])) && Number.isFinite(toSeconds(r['Time'])));
+    
+    // Apply one per athlete filter if enabled
+    data = filterOnePerAthlete(data, ev);
+    
     const series = { male: new Map(), female: new Map() };
     const bestMeta = { male: new Map(), female: new Map() };
     for (const r of data) {
@@ -434,7 +470,7 @@ function attachEventUIHandlers() {
     if (!ev) return;
     const min = Number(elements.ageMin?.value ?? 30);
     const max = Number(elements.ageMax?.value ?? 100);
-    const rows = allRows.filter(r => {
+    let rows = allRows.filter(r => {
       if ((r['Event'] || '').trim() !== ev) return false;
       
       // For custom age analysis, only include numerical ages (exclude age ranges)
@@ -446,7 +482,12 @@ function attachEventUIHandlers() {
       if (customGender !== 'all' && g !== customGender) return false;
       const t = toSeconds(r['Time']);
       return Number.isFinite(t);
-    }).sort((a,b) => toSeconds(a['Time']) - toSeconds(b['Time']));
+    });
+    
+    // Apply one per athlete filter if enabled
+    rows = filterOnePerAthlete(rows, ev);
+    
+    rows.sort((a,b) => toSeconds(a['Time']) - toSeconds(b['Time']));
     renderCustomResults(rows);
     renderHistogram(rows);
     elements.customResults && elements.customResults.classList.remove('hidden');
@@ -699,6 +740,12 @@ function initTheme() {
     localStorage.setItem('cmrp-theme', 'light');
     applyTheme('light');
   });
+  
+  // Restore one per athlete toggle state
+  const onePerAthleteStored = localStorage.getItem('cmrp-one-per-athlete');
+  if (onePerAthleteStored !== null && elements.onePerAthlete) {
+    elements.onePerAthlete.checked = onePerAthleteStored === 'true';
+  }
 }
 
 async function loadData() {
