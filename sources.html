@@ -35,7 +35,7 @@
                 <img src="img/logo-BRR.png" alt="Boulder Road Runners Logo" class="source-logo">
                 <div class="card-title-section">
                   <h3>Boulder Road Runners</h3>
-                  <p>All-Comers Summer Track & Field Meet results across years, plus Mile High Mile races. Currently includes: (2004–2025)</p>
+                  <p>All-Comers Summer Track & Field Meet results across years, plus Mile High Mile races.</p>
                 </div>
               </div>
               <div class="card-actions">
@@ -49,7 +49,7 @@
                 <img src="img/FCRC-Logo-Full.webp" alt="Fort Collins Running Club Logo" class="source-logo">
                 <div class="card-title-section">
                   <h3>Fort Collins Running Club</h3>
-                  <p>NoCo All Comers Track Meet Series at Loveland High School. Masters results: 2022–2023. No masters results for 2024–2025.</p>
+                  <p>NoCo All Comers Track Meet Series at Loveland High School.</p>
                 </div>
               </div>
               <div class="card-actions">
@@ -63,7 +63,7 @@
                 <img src="img/CO-Senior-Games-No-Year.svg" alt="Colorado Senior Games Logo" class="source-logo">
                 <div class="card-title-section">
                   <h3>Colorado Senior Games</h3>
-                  <p>Track and Field competition for athletes 50+ at Garry Berry Stadium in Colorado Springs. Currently includes: (All time records)</p>
+                  <p>Track and Field competition for athletes 50+ at Garry Berry Stadium in Colorado Springs.</p>
                 </div>
               </div>
               <div class="card-actions">
@@ -77,11 +77,24 @@
                 <img src="img/WesternCOSrGames.png" alt="Western Colorado Senior Games Logo" class="source-logo">
                 <div class="card-title-section">
                   <h3>Western Colorado Senior Games</h3>
-                  <p>Track and Field competition for athletes 50+. Currently includes: (2023–2024)</p>
+                  <p>Track and Field competition for athletes 50+.</p>
                 </div>
               </div>
               <div class="card-actions">
                 <button id="wcsg-races-btn" class="button" type="button">Meets</button>
+              </div>
+            </div>
+            
+            <div class="link-card" role="listitem" aria-label="Rocky Mountain State Games results">
+              <div class="card-header-with-logo">
+                <img src="img/RMSG-Transparent.png.webp" alt="Rocky Mountain State Games Logo" class="source-logo">
+                <div class="card-title-section">
+                  <h3>Rocky Mountain State Games</h3>
+                  <p>Track and Field competition in Colorado Springs.</p>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button id="rmsg-races-btn" class="button" type="button">Meets</button>
               </div>
             </div>
             <div class="link-card">
@@ -89,7 +102,7 @@
                 <img src="img/denver-athletics.webp" alt="Denver Athletics" class="source-logo">
                 <div class="card-title-section">
                   <h3>Denver Athletics</h3>
-                  <p>Track and Field meets in the Denver area. Currently includes: (2024–2025)</p>
+                  <p>Track and Field meets in the Denver area.</p>
                 </div>
               </div>
               <div class="card-actions">
@@ -396,6 +409,36 @@
         renderRacesTable(list, 'Denver Athletics');
       }
 
+      async function listRmsgRaces() {
+        const rows = await ensureCsvLoaded();
+        // Filter by RMSG source
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'RMSG');
+        const byRace = new Map();
+        for (const r of filtered) {
+          const meetName = (r['Meet name'] || '').trim();
+          const date = parseDateFlexible(r['Date']);
+          if (!meetName || !date) continue;
+
+          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
+          if (!byRace.has(key)) {
+            byRace.set(key, {
+              meetName: meetName,
+              date: date,
+              count: 0,
+              events: new Set()
+            });
+          }
+          const agg = byRace.get(key);
+          agg.count += 1;
+          const event = (r['Event'] || '').trim();
+          if (event) {
+            agg.events.add(event);
+          }
+        }
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'Rocky Mountain State Games');
+      }
+
       racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
       
       const fcrcRacesBtn = document.getElementById('fcrc-races-btn');
@@ -409,6 +452,9 @@
       
       const daRacesBtn = document.getElementById('da-races-btn');
       daRacesBtn && daRacesBtn.addEventListener('click', () => { listDaRaces().catch(console.error); });
+      
+      const rmsgRacesBtn = document.getElementById('rmsg-races-btn');
+      rmsgRacesBtn && rmsgRacesBtn.addEventListener('click', () => { listRmsgRaces().catch(console.error); });
     </script>
   </body>
   </html>
