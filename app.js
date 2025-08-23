@@ -104,10 +104,9 @@ function formatDate(date) {
 // Use unified mapping from sources.js
 const SOURCE_META = (typeof window !== 'undefined' && window.SOURCES) ? window.SOURCES : {};
 
-function openRecordModal(row) {
+function openRecordModal(row, currentLi) {
   // Inline detail row instead of modal
   // Find (or create) a detail row just after the clicked LI
-  const currentLi = [...elementToRow.entries()].find(([el, r]) => r === row)?.[0];
   if (!currentLi) return;
   let detail = currentLi.nextElementSibling;
   // If a detail row exists and belongs to this LI, toggle it; otherwise, remove any existing detail rows and create a new one
@@ -402,7 +401,7 @@ function renderLeaderboard(eventName, gender) {
       const li = e.target && (e.target.closest ? e.target.closest('li') : null);
       if (!li) return;
       const row = elementToRow.get(li);
-      if (row) openRecordModal(row);
+      if (row) openRecordModal(row, li);
     });
   }
 }
@@ -760,6 +759,16 @@ function attachSearchHandlers() {
   };
   elements.searchBtn.addEventListener('click', performSearch);
   elements.searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performSearch(); });
+
+  // Delegate clicks for custom results list as well
+  if (!recordClicksDelegated && elements.customResultsList) {
+    elements.customResultsList.addEventListener('click', (e) => {
+      const li = e.target && (e.target.closest ? e.target.closest('li') : null);
+      if (!li) return;
+      const row = elementToRow.get(li);
+      if (row) openRecordModal(row, li);
+    });
+  }
 
   // No modal to manage anymore
 }
