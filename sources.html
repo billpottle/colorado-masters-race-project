@@ -29,88 +29,7 @@
       <section class="card" aria-labelledby="sources-title">
         <div class="card-content">
           <h2 id="sources-title" class="section-title"><span class="dot"></span>Sources</h2>
-          <div class="grid" role="list">
-            <div class="link-card" role="listitem" aria-label="Boulder Road Runners results">
-              <div class="card-header-with-logo">
-                <img src="img/logo-BRR.png" alt="Boulder Road Runners Logo" class="source-logo">
-                <div class="card-title-section">
-                  <h3>Boulder Road Runners</h3>
-                  <p>All-Comers Summer Track & Field Meet results across years, plus Mile High Mile races.</p>
-                </div>
-              </div>
-              <div class="card-actions">
-                <a class="button" href="https://boulderroadrunners.org/race-results/track-meets/" target="_blank" rel="noopener noreferrer">Visit site</a>
-                <button id="brr-races-btn" class="button" type="button">Meets</button>
-              </div>
-            </div>
-            
-            <div class="link-card" role="listitem" aria-label="Fort Collins Running Club results">
-              <div class="card-header-with-logo">
-                <img src="img/FCRC-Logo-Full.webp" alt="Fort Collins Running Club Logo" class="source-logo">
-                <div class="card-title-section">
-                  <h3>Fort Collins Running Club</h3>
-                  <p>NoCo All Comers Track Meet Series at Loveland High School.</p>
-                </div>
-              </div>
-              <div class="card-actions">
-                <a class="button" href="https://fortcollinsrunningclub.org/noco-all-comers-track-meets/" target="_blank" rel="noopener noreferrer">Visit site</a>
-                <button id="fcrc-races-btn" class="button" type="button">Meets</button>
-              </div>
-            </div>
-            
-            <div class="link-card" role="listitem" aria-label="Colorado Senior Games results">
-              <div class="card-header-with-logo">
-                <img src="img/CO-Senior-Games-No-Year.svg" alt="Colorado Senior Games Logo" class="source-logo">
-                <div class="card-title-section">
-                  <h3>Colorado Senior Games</h3>
-                  <p>Track and Field competition for athletes 50+ at Garry Berry Stadium in Colorado Springs.</p>
-                </div>
-              </div>
-              <div class="card-actions">
-                <a class="button" href="https://coloradoseniorgames.org/sport/track-and-field/" target="_blank" rel="noopener noreferrer">Visit site</a>
-                <button id="csg-races-btn" class="button" type="button">Meets</button>
-              </div>
-            </div>
-            
-            <div class="link-card" role="listitem" aria-label="Western Colorado Senior Games results">
-              <div class="card-header-with-logo">
-                <img src="img/WesternCOSrGames.png" alt="Western Colorado Senior Games Logo" class="source-logo">
-                <div class="card-title-section">
-                  <h3>Western Colorado Senior Games</h3>
-                  <p>Track and Field competition for athletes 50+.</p>
-                </div>
-              </div>
-              <div class="card-actions">
-                <button id="wcsg-races-btn" class="button" type="button">Meets</button>
-              </div>
-            </div>
-            
-            <div class="link-card" role="listitem" aria-label="Rocky Mountain State Games results">
-              <div class="card-header-with-logo">
-                <img src="img/RMSG-Transparent.png.webp" alt="Rocky Mountain State Games Logo" class="source-logo">
-                <div class="card-title-section">
-                  <h3>Rocky Mountain State Games</h3>
-                  <p>Track and Field competition in Colorado Springs.</p>
-                </div>
-              </div>
-              <div class="card-actions">
-                <button id="rmsg-races-btn" class="button" type="button">Meets</button>
-              </div>
-            </div>
-            <div class="link-card">
-              <div class="card-header-with-logo">
-                <img src="img/denver-athletics.webp" alt="Denver Athletics" class="source-logo">
-                <div class="card-title-section">
-                  <h3>Denver Athletics</h3>
-                  <p>Track and Field meets in the Denver area.</p>
-                </div>
-              </div>
-              <div class="card-actions">
-                <button id="da-races-btn" class="button" type="button">Meets</button>
-              </div>
-            </div>
-            <!-- Add more source cards here as new sources are integrated -->
-          </div>
+          <div id="sources-grid" class="grid" role="list"></div>
         </div>
       </section>
 
@@ -144,6 +63,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="sources.js"></script>
     <script>
       // Minimal theme sync (reuse same keys as main)
       const themeDark = document.getElementById('theme-dark');
@@ -166,7 +86,7 @@
       themeLight && themeLight.addEventListener('click', () => { localStorage.setItem('cmrp-theme','light'); applyTheme('light'); });
 
       // Races listing
-      const racesBtn = document.getElementById('brr-races-btn');
+      const racesBtn = null;
       const racesCard = document.getElementById('races-card');
       const racesOutput = document.getElementById('races-output');
       const racesSummary = document.getElementById('races-summary');
@@ -262,202 +182,56 @@
         racesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
-      async function listBrrRaces() {
+      async function listRacesForSource(code) {
         const rows = await ensureCsvLoaded();
-        // Filter by BRR source
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'BRR');
+        const src = String(code || '').trim();
+        if (!src) return;
+        const filtered = rows.filter(r => String(r['Source'] || '').trim() === src);
         const byRace = new Map();
         for (const r of filtered) {
           const meetName = (r['Meet name'] || '').trim();
           const date = parseDateFlexible(r['Date']);
           if (!meetName || !date) continue;
-          
           const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) {
-            byRace.set(key, { 
-              meetName: meetName, 
-              date: date, 
-              count: 0, 
-              events: new Set()
-            });
-          }
+          if (!byRace.has(key)) byRace.set(key, { meetName, date, count: 0, events: new Set() });
           const agg = byRace.get(key);
           agg.count += 1;
           const event = (r['Event'] || '').trim();
-          if (event) {
-            agg.events.add(event);
-          }
+          if (event) agg.events.add(event);
         }
         const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'Boulder Road Runners');
+        const title = (window.SOURCES && window.SOURCES[src] && window.SOURCES[src].name) || src;
+        renderRacesTable(list, title);
       }
 
-      async function listFcrcRaces() {
-        const rows = await ensureCsvLoaded();
-        // Filter by FCTC source
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'FCTC');
-        const byRace = new Map();
-        for (const r of filtered) {
-          const meetName = (r['Meet name'] || '').trim();
-          const date = parseDateFlexible(r['Date']);
-          if (!meetName || !date) continue;
-          
-          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) {
-            byRace.set(key, { 
-              meetName: meetName, 
-              date: date, 
-              count: 0, 
-              events: new Set()
-            });
+      function renderSourcesGrid() {
+        const grid = document.getElementById('sources-grid');
+        if (!grid || !window.SOURCES) return;
+        grid.innerHTML = '';
+        for (const [code, meta] of Object.entries(window.SOURCES)) {
+          const card = document.createElement('div');
+          card.className = 'link-card';
+          card.setAttribute('role','listitem');
+          const header = document.createElement('div'); header.className = 'card-header-with-logo';
+          const img = document.createElement('img'); img.className = 'source-logo'; img.src = meta.logo; img.alt = `${meta.name} Logo`;
+          const titleWrap = document.createElement('div'); titleWrap.className = 'card-title-section';
+          const h3 = document.createElement('h3'); h3.textContent = meta.name;
+          const p = document.createElement('p'); p.textContent = meta.description || '';
+          titleWrap.appendChild(h3); if (p.textContent) titleWrap.appendChild(p);
+          header.appendChild(img); header.appendChild(titleWrap); card.appendChild(header);
+          const actions = document.createElement('div'); actions.className = 'card-actions';
+          if (meta.url) {
+            const a = document.createElement('a'); a.className = 'button'; a.href = meta.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Visit site'; actions.appendChild(a);
           }
-          const agg = byRace.get(key);
-          agg.count += 1;
-          const event = (r['Event'] || '').trim();
-          if (event) {
-            agg.events.add(event);
-          }
+          const btn = document.createElement('button'); btn.className = 'button'; btn.type = 'button'; btn.textContent = 'Meets';
+          btn.addEventListener('click', () => { listRacesForSource(code).catch(console.error); });
+          actions.appendChild(btn);
+          card.appendChild(actions);
+          grid.appendChild(card);
         }
-        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'Fort Collins Running Club');
       }
 
-      async function listCsgRaces() {
-        const rows = await ensureCsvLoaded();
-        // Filter by CSG source
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'CSG');
-        const byRace = new Map();
-        for (const r of filtered) {
-          const meetName = (r['Meet name'] || '').trim();
-          const date = parseDateFlexible(r['Date']);
-          if (!meetName || !date) continue;
-          
-          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) {
-            byRace.set(key, { 
-              meetName: meetName, 
-              date: date, 
-              count: 0, 
-              events: new Set()
-            });
-          }
-          const agg = byRace.get(key);
-          agg.count += 1;
-          const event = (r['Event'] || '').trim();
-          if (event) {
-            agg.events.add(event);
-          }
-        }
-        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'Colorado Senior Games');
-      }
-
-      async function listWcsgRaces() {
-        const rows = await ensureCsvLoaded();
-        // Filter by WCSG source
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'WCSG');
-        const byRace = new Map();
-        for (const r of filtered) {
-          const meetName = (r['Meet name'] || '').trim();
-          const date = parseDateFlexible(r['Date']);
-          if (!meetName || !date) continue;
-          
-          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) {
-            byRace.set(key, { 
-              meetName: meetName, 
-              date: date, 
-              count: 0, 
-              events: new Set()
-            });
-          }
-          const agg = byRace.get(key);
-          agg.count += 1;
-          const event = (r['Event'] || '').trim();
-          if (event) {
-            agg.events.add(event);
-          }
-        }
-        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'Western Colorado Senior Games');
-      }
-
-      async function listDaRaces() {
-        const rows = await ensureCsvLoaded();
-        // Filter by DA source
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'DA');
-        const byRace = new Map();
-        for (const r of filtered) {
-          const meetName = (r['Meet name'] || '').trim();
-          const date = parseDateFlexible(r['Date']);
-          if (!meetName || !date) continue;
-          
-          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) {
-            byRace.set(key, { 
-              meetName: meetName, 
-              date: date, 
-              count: 0, 
-              events: new Set()
-            });
-          }
-          const agg = byRace.get(key);
-          agg.count += 1;
-          const event = (r['Event'] || '').trim();
-          if (event) {
-            agg.events.add(event);
-          }
-        }
-        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'Denver Athletics');
-      }
-
-      async function listRmsgRaces() {
-        const rows = await ensureCsvLoaded();
-        // Filter by RMSG source
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === 'RMSG');
-        const byRace = new Map();
-        for (const r of filtered) {
-          const meetName = (r['Meet name'] || '').trim();
-          const date = parseDateFlexible(r['Date']);
-          if (!meetName || !date) continue;
-
-          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) {
-            byRace.set(key, {
-              meetName: meetName,
-              date: date,
-              count: 0,
-              events: new Set()
-            });
-          }
-          const agg = byRace.get(key);
-          agg.count += 1;
-          const event = (r['Event'] || '').trim();
-          if (event) {
-            agg.events.add(event);
-          }
-        }
-        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
-        renderRacesTable(list, 'Rocky Mountain State Games');
-      }
-
-      racesBtn && racesBtn.addEventListener('click', () => { listBrrRaces().catch(console.error); });
-      
-      const fcrcRacesBtn = document.getElementById('fcrc-races-btn');
-      fcrcRacesBtn && fcrcRacesBtn.addEventListener('click', () => { listFcrcRaces().catch(console.error); });
-      
-      const csgRacesBtn = document.getElementById('csg-races-btn');
-      csgRacesBtn && csgRacesBtn.addEventListener('click', () => { listCsgRaces().catch(console.error); });
-      
-      const wcsgRacesBtn = document.getElementById('wcsg-races-btn');
-      wcsgRacesBtn && wcsgRacesBtn.addEventListener('click', () => { listWcsgRaces().catch(console.error); });
-      
-      const daRacesBtn = document.getElementById('da-races-btn');
-      daRacesBtn && daRacesBtn.addEventListener('click', () => { listDaRaces().catch(console.error); });
-      
-      const rmsgRacesBtn = document.getElementById('rmsg-races-btn');
-      rmsgRacesBtn && rmsgRacesBtn.addEventListener('click', () => { listRmsgRaces().catch(console.error); });
+      renderSourcesGrid();
     </script>
   </body>
   </html>

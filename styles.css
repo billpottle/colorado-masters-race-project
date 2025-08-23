@@ -589,3 +589,33 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-accent), tran
 }
 .error { color: #fecaca; }
 .hidden { display: none; }
+
+/* Modal */
+.modal { position: fixed; inset: 0; z-index: 100; }
+.modal.hidden { display: none; }
+.modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px);
+}
+.modal-content {
+  position: relative; z-index: 1;
+  width: min(560px, calc(100% - 32px));
+  margin: 10vh auto;
+  border-radius: 14px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-accent), transparent 10%), color-mix(in srgb, var(--bg-accent), transparent 18%));
+  border: 1px solid color-mix(in srgb, var(--text), transparent 85%);
+  box-shadow: var(--shadow);
+}
+.modal-close {
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; border: none; color: var(--muted);
+  font-size: 22px; cursor: pointer; line-height: 1;
+}
+.modal-body { padding: 18px; display: flex; align-items: center; gap: 14px; }
+.modal-logo { width: 60px; height: 60px; object-fit: contain; border-radius: 8px; background: white; border: 1px solid color-mix(in srgb, var(--text), transparent 90%); }
+.modal-title { margin: 0; font-size: 18px; color: var(--text); }
+
+/* Make record items clickable */
+.mini-list li { cursor: pointer; }
+.mini-list li:hover { filter: brightness(1.05); }

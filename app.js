@@ -37,6 +37,10 @@ const elements = {
   customResults: document.getElementById('custom-results'),
   customHistogram: document.getElementById('custom-histogram'),
   eventChart: document.getElementById('event-chart'),
+  // Modal
+  recordModal: document.getElementById('record-modal'),
+  recordLogo: document.getElementById('record-source-logo'),
+  recordTitle: document.getElementById('record-modal-title'),
   themeDark: document.getElementById('theme-dark'),
   themeLight: document.getElementById('theme-light'),
 };
@@ -91,6 +95,31 @@ function formatDate(date) {
   }
   const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   return fmt.format(date);
+}
+
+// Use unified mapping from sources.js
+const SOURCE_META = (typeof window !== 'undefined' && window.SOURCES) ? window.SOURCES : {};
+
+function openRecordModal(row) {
+  if (!elements.recordModal) return;
+  const srcCode = String(row['Source'] || '').trim();
+  const meta = SOURCE_META[srcCode] || { name: srcCode || 'Source', logo: '' };
+  const meet = String(row['Meet name'] || '').trim();
+  if (elements.recordLogo) {
+    if (meta.logo) { elements.recordLogo.src = meta.logo; elements.recordLogo.alt = meta.name + ' Logo'; }
+    else { elements.recordLogo.removeAttribute('src'); elements.recordLogo.alt = ''; }
+  }
+  if (elements.recordTitle) {
+    elements.recordTitle.textContent = meet || 'Meet';
+  }
+  elements.recordModal.classList.remove('hidden');
+  elements.recordModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeRecordModal() {
+  if (!elements.recordModal) return;
+  elements.recordModal.classList.add('hidden');
+  elements.recordModal.setAttribute('aria-hidden', 'true');
 }
 
 function normalizeGender(g) {
@@ -322,6 +351,7 @@ function renderLeaderboard(eventName, gender) {
         li.appendChild(time);
         li.appendChild(dateEl);
         li.appendChild(ageEl);
+        li.addEventListener('click', () => openRecordModal(r));
         ul.appendChild(li);
       }
     }
@@ -464,6 +494,7 @@ function attachEventUIHandlers() {
       const dateEl = document.createElement('span'); dateEl.className = 'date'; dateEl.textContent = formatDate(parseDateFlexible(r['Date'])) || '—';
       const ageEl = document.createElement('span'); ageEl.className = 'age'; ageEl.textContent = `age ${r['Age']}`;
       li.appendChild(rankEl); li.appendChild(who); li.appendChild(time); li.appendChild(dateEl); li.appendChild(ageEl);
+      li.addEventListener('click', () => openRecordModal(r));
       listEl.appendChild(li);
     }
   };
@@ -684,6 +715,19 @@ function attachSearchHandlers() {
   };
   elements.searchBtn.addEventListener('click', performSearch);
   elements.searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performSearch(); });
+
+  // Modal close handlers
+  if (elements.recordModal) {
+    elements.recordModal.addEventListener('click', (e) => {
+      const target = e.target;
+      if (target && target.getAttribute && target.getAttribute('data-close') === 'true') {
+        closeRecordModal();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !elements.recordModal.classList.contains('hidden')) closeRecordModal();
+    });
+  }
 }
 
 function renderResultsTable(rows) {

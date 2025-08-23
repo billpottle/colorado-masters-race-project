@@ -170,8 +170,21 @@
     </section>
   </main>
 
+  <!-- Record detail modal -->
+  <section id="record-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="record-modal-title">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-content" role="document">
+      <button class="modal-close" type="button" aria-label="Close" data-close="true">×</button>
+      <div class="modal-body">
+        <img id="record-source-logo" class="modal-logo" alt="" />
+        <h3 id="record-modal-title" class="modal-title"></h3>
+      </div>
+    </div>
+  </section>
+
   <!-- Papa Parse for robust CSV parsing -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="sources.js"></script>
   <script defer src="app.js"></script>
 </body>
 
