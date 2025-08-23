@@ -619,3 +619,36 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-accent), tran
 /* Make record items clickable */
 .mini-list li { cursor: pointer; }
 .mini-list li:hover { filter: brightness(1.05); }
+
+/* Inline record detail row */
+.detail-row {
+  margin-top: 6px;
+  border-left: 2px solid color-mix(in srgb, var(--primary), transparent 35%);
+  background: color-mix(in srgb, var(--card), transparent 86%);
+  border: 1px solid color-mix(in srgb, var(--text), transparent 92%);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.detail-inner {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 12px;
+  padding: 10px 12px;
+  align-items: center;
+}
+.detail-logo {
+  width: 60px; height: 60px; object-fit: contain; background: white; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
+}
+.detail-title { margin: 0; font-weight: 700; color: var(--text); }
+.detail-meta { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+
+/* Expand/collapse animation */
+.expandable {
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 200ms ease, opacity 200ms ease;
+}
+.expandable.open {
+  max-height: 160px; /* sufficient for content */
+  opacity: 1;
+}

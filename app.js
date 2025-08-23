@@ -105,19 +105,48 @@ function formatDate(date) {
 const SOURCE_META = (typeof window !== 'undefined' && window.SOURCES) ? window.SOURCES : {};
 
 function openRecordModal(row) {
-  if (!elements.recordModal) return;
-  const srcCode = String(row['Source'] || '').trim();
-  const meta = SOURCE_META[srcCode] || { name: srcCode || 'Source', logo: '' };
-  const meet = String(row['Meet name'] || '').trim();
-  if (elements.recordLogo) {
-    if (meta.logo) { elements.recordLogo.src = meta.logo; elements.recordLogo.alt = meta.name + ' Logo'; }
-    else { elements.recordLogo.removeAttribute('src'); elements.recordLogo.alt = ''; }
+  // Inline detail row instead of modal
+  // Find (or create) a detail row just after the clicked LI
+  const currentLi = [...elementToRow.entries()].find(([el, r]) => r === row)?.[0];
+  if (!currentLi) return;
+  let detail = currentLi.nextElementSibling;
+  // If a detail row exists and belongs to this LI, toggle it; otherwise, remove any existing detail rows and create a new one
+  if (!(detail && detail.classList && detail.classList.contains('detail-row'))) {
+    // Remove any open detail rows under the same parent UL
+    const parent = currentLi.parentElement;
+    if (parent) {
+      for (const child of Array.from(parent.children)) {
+        if (child.classList && child.classList.contains('detail-row')) child.remove();
+      }
+    }
+    detail = document.createElement('li');
+    detail.className = 'detail-row expandable';
+    const srcCode = String(row['Source'] || '').trim();
+    const meta = SOURCE_META[srcCode] || { name: srcCode || 'Source', logo: '' };
+    const meet = String(row['Meet name'] || '').trim();
+    detail.innerHTML = `
+      <div class="detail-inner">
+        <img class="detail-logo" src="${meta.logo || ''}" alt="${meta.name || 'Source'} Logo" />
+        <div>
+          <h4 class="detail-title">${meet || 'Meet'}</h4>
+          <p class="detail-meta">${meta.name || ''}</p>
+        </div>
+      </div>
+    `;
+    currentLi.insertAdjacentElement('afterend', detail);
+    // Allow transition
+    requestAnimationFrame(() => detail.classList.add('open'));
+  } else {
+    // Toggle existing
+    if (detail.classList.contains('open')) {
+      detail.classList.remove('open');
+      // Remove after transition ends
+      const removeAfter = () => { detail.removeEventListener('transitionend', removeAfter); if (!detail.classList.contains('open')) detail.remove(); };
+      detail.addEventListener('transitionend', removeAfter);
+    } else {
+      detail.classList.add('open');
+    }
   }
-  if (elements.recordTitle) {
-    elements.recordTitle.textContent = meet || 'Meet';
-  }
-  elements.recordModal.classList.remove('hidden');
-  elements.recordModal.setAttribute('aria-hidden', 'false');
 }
 
 function closeRecordModal() {
@@ -732,18 +761,7 @@ function attachSearchHandlers() {
   elements.searchBtn.addEventListener('click', performSearch);
   elements.searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performSearch(); });
 
-  // Modal close handlers
-  if (elements.recordModal) {
-    elements.recordModal.addEventListener('click', (e) => {
-      const target = e.target;
-      if (target && target.getAttribute && target.getAttribute('data-close') === 'true') {
-        closeRecordModal();
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !elements.recordModal.classList.contains('hidden')) closeRecordModal();
-    });
-  }
+  // No modal to manage anymore
 }
 
 function renderResultsTable(rows) {
