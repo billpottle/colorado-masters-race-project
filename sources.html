@@ -212,6 +212,9 @@
       }
       function formatDate(date) {
         if (!date) return '—';
+        if (date.getMonth() === 0 && date.getDate() === 1) {
+          return String(date.getFullYear());
+        }
         const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         return fmt.format(date);
       }
