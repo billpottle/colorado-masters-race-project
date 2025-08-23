@@ -556,7 +556,7 @@ select.input option {
   border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
 }
 .mini-list li + li { margin-top: 8px; }
-.mini-list .who { font-weight: 700; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.mini-list .who { font-weight: 700; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
 .mini-list .time { font-weight: 700; color: color-mix(in srgb, var(--primary), white 15%); text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
 .mini-list .date, .mini-list .age { color: var(--muted); font-size: 12px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 
@@ -622,6 +622,8 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-accent), tran
 
 /* Inline record detail row */
 .detail-row {
+  display: block; /* override grid from .mini-list li so content can use full width */
+  padding: 0;
   margin-top: 6px;
   border-left: 2px solid color-mix(in srgb, var(--primary), transparent 35%);
   background: color-mix(in srgb, var(--card), transparent 86%);
@@ -634,13 +636,13 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-accent), tran
   grid-template-columns: 60px 1fr;
   gap: 12px;
   padding: 10px 12px;
-  align-items: center;
+  align-items: start;
 }
 .detail-logo {
   width: 60px; height: 60px; object-fit: contain; background: white; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
 }
 .detail-title { margin: 0; font-weight: 700; color: var(--text); }
-.detail-meta { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+.detail-meta { margin: 2px 0 0; color: var(--muted); font-size: 12px; white-space: normal; }
 
 /* Expand/collapse animation */
 .expandable {
