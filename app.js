@@ -45,6 +45,10 @@ const elements = {
   themeLight: document.getElementById('theme-light'),
 };
 
+// Associate DOM elements with their source rows for robust click handling
+const elementToRow = new WeakMap();
+let recordClicksDelegated = false;
+
 const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
 
 function toTwoDigitYear(y) {
@@ -189,6 +193,7 @@ const AGE_GROUPS = [
   { label: '80-84', min: 80, max: 84 },
   { label: '85-89', min: 85, max: 89 },
   { label: '90-94', min: 90, max: 94 },
+  { label: '95-99', min: 95, max: 99 },
 ];
 
 function toSeconds(timeStr) {
@@ -351,7 +356,7 @@ function renderLeaderboard(eventName, gender) {
         li.appendChild(time);
         li.appendChild(dateEl);
         li.appendChild(ageEl);
-        li.addEventListener('click', () => openRecordModal(r));
+        elementToRow.set(li, r);
         ul.appendChild(li);
       }
     }
@@ -360,6 +365,17 @@ function renderLeaderboard(eventName, gender) {
   }
   elements.leaderboardContainer.innerHTML = '';
   elements.leaderboardContainer.appendChild(frag);
+
+  // Delegate clicks once for all future renders
+  if (!recordClicksDelegated) {
+    recordClicksDelegated = true;
+    elements.leaderboardContainer.addEventListener('click', (e) => {
+      const li = e.target && (e.target.closest ? e.target.closest('li') : null);
+      if (!li) return;
+      const row = elementToRow.get(li);
+      if (row) openRecordModal(row);
+    });
+  }
 }
 
 function attachEventUIHandlers() {
@@ -494,7 +510,7 @@ function attachEventUIHandlers() {
       const dateEl = document.createElement('span'); dateEl.className = 'date'; dateEl.textContent = formatDate(parseDateFlexible(r['Date'])) || '—';
       const ageEl = document.createElement('span'); ageEl.className = 'age'; ageEl.textContent = `age ${r['Age']}`;
       li.appendChild(rankEl); li.appendChild(who); li.appendChild(time); li.appendChild(dateEl); li.appendChild(ageEl);
-      li.addEventListener('click', () => openRecordModal(r));
+      elementToRow.set(li, r);
       listEl.appendChild(li);
     }
   };
