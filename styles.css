@@ -12,6 +12,7 @@
   --danger: #f43f5e;
   --shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
   --radius: 16px;
+  color-scheme: dark;
 }
 
 /* Light theme overrides */
@@ -28,6 +29,7 @@
   --warning: #d97706;
   --danger: #dc2626;
   --shadow: 0 10px 30px rgba(17, 24, 39, 0.15);
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -223,6 +225,25 @@ main {
   min-width: 260px;
 }
 .input::placeholder { color: #9ca3af; }
+
+/* Ensure select dropdowns are readable in dark mode on Windows */
+select.input {
+  background: color-mix(in srgb, var(--bg-accent), transparent 10%);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--text), transparent 80%);
+}
+select.input:focus {
+  background: color-mix(in srgb, var(--bg-accent), transparent 6%);
+}
+/* Options popup styling (supported on most browsers) */
+select.input option {
+  background: var(--bg-accent);
+  color: var(--text);
+}
+[data-theme="light"] select.input option {
+  background: #ffffff;
+  color: #111827;
+}
 .button {
   padding: 10px 14px;
   border-radius: 10px;
