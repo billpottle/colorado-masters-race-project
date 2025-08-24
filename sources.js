@@ -39,6 +39,16 @@ window.SOURCES = {
     name: 'USA Track & Field',
     logo: 'img/USA_Track_and_Field.svg.png',
     description: 'USA Track & Field sanctioned meets and championships.'
+  },
+  CSSTC: {
+    name: 'Colorado Springs Striders Track Club',
+    logo: 'img/CSSTC.png',
+    description: 'Track and Field meets in Colorado Springs.'
+  },
+  TRACKSMITH: {
+    name: 'Tracksmith',
+    logo: 'img/tracksmith.png',
+    description: 'Tracksmith-organized meets and events.'
   }
 };
 
