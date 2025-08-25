@@ -29,6 +29,13 @@
       <section class="card" aria-labelledby="sources-title">
         <div class="card-content">
           <h2 id="sources-title" class="section-title"><span class="dot"></span>Sources</h2>
+          <div class="control-row" style="margin: 8px 0 12px;">
+            <label class="footer-note" for="filter-after" style="margin-right:6px;">After</label>
+            <input id="filter-after" type="date" class="input" style="min-width: 0; width: 160px;" />
+            <label class="footer-note" for="filter-before" style="margin: 0 6px 0 12px;">Before</label>
+            <input id="filter-before" type="date" class="input" style="min-width: 0; width: 160px;" />
+            <button id="view-all-btn" class="button" type="button" style="margin-left:auto;">View all races</button>
+          </div>
           <div id="sources-grid" class="grid" role="list"></div>
         </div>
       </section>
@@ -156,6 +163,14 @@
         return loadedRows;
       }
 
+      function getDateFilters() {
+        const afterInput = document.getElementById('filter-after');
+        const beforeInput = document.getElementById('filter-before');
+        const afterVal = afterInput && afterInput.value ? new Date(afterInput.value + 'T00:00:00') : null;
+        const beforeVal = beforeInput && beforeInput.value ? new Date(beforeInput.value + 'T23:59:59') : null;
+        return { after: isNaN(afterVal?.getTime?.()) ? null : afterVal, before: isNaN(beforeVal?.getTime?.()) ? null : beforeVal };
+      }
+
       function renderRacesTable(rows, title) {
         racesCard.classList.remove('hidden');
         racesSummary.textContent = `${rows.length.toLocaleString()} meet${rows.length === 1 ? '' : 's'} found` + (title ? ` for ${title}` : '');
@@ -186,7 +201,15 @@
         const rows = await ensureCsvLoaded();
         const src = String(code || '').trim();
         if (!src) return;
-        const filtered = rows.filter(r => String(r['Source'] || '').trim() === src);
+        const { after, before } = getDateFilters();
+        const filtered = rows.filter(r => {
+          if (String(r['Source'] || '').trim() !== src) return false;
+          const d = parseDateFlexible(r['Date']);
+          if (!d) return false;
+          if (after && d < after) return false;
+          if (before && d > before) return false;
+          return true;
+        });
         const byRace = new Map();
         for (const r of filtered) {
           const meetName = (r['Meet name'] || '').trim();
@@ -202,6 +225,27 @@
         const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
         const title = (window.SOURCES && window.SOURCES[src] && window.SOURCES[src].name) || src;
         renderRacesTable(list, title);
+      }
+
+      async function listAllRaces() {
+        const rows = await ensureCsvLoaded();
+        const { after, before } = getDateFilters();
+        const byRace = new Map();
+        for (const r of rows) {
+          const meetName = (r['Meet name'] || '').trim();
+          const date = parseDateFlexible(r['Date']);
+          if (!meetName || !date) continue;
+          if (after && date < after) continue;
+          if (before && date > before) continue;
+          const key = `${meetName}::${date.toISOString().split('T')[0]}`;
+          if (!byRace.has(key)) byRace.set(key, { meetName, date, count: 0, events: new Set() });
+          const agg = byRace.get(key);
+          agg.count += 1;
+          const event = (r['Event'] || '').trim();
+          if (event) agg.events.add(event);
+        }
+        const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
+        renderRacesTable(list, 'All sources');
       }
 
       function renderSourcesGrid() {
@@ -232,6 +276,8 @@
       }
 
       renderSourcesGrid();
+      const viewAllBtn = document.getElementById('view-all-btn');
+      viewAllBtn && viewAllBtn.addEventListener('click', () => { listAllRaces().catch(console.error); });
     </script>
   </body>
   </html>
