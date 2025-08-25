@@ -41,8 +41,6 @@
             <input id="filter-after" type="date" class="input" style="min-width: 0; width: 160px;" />
             <label class="footer-note" for="filter-before" style="margin: 0 6px 0 12px;">Before</label>
             <input id="filter-before" type="date" class="input" style="min-width: 0; width: 160px;" />
-            <button id="view-all-btn" class="button" type="button" style="margin-left:auto;">View all meets</button>
-            <button id="view-all-btn" class="button" type="button" style="margin-left:auto;">View all meets</button>
           </div>
           <div id="races-summary" class="subtitle" style="margin-top: 6px;"></div>
           <div id="races-output" class="table-container" style="margin-top: 12px;">          </div>
@@ -189,7 +187,15 @@
           const tdDate = document.createElement('td'); tdDate.textContent = formatDate(r.date);
           const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
           const tdEvents = document.createElement('td'); tdEvents.textContent = Array.from(r.events).sort().join(', ');
-          const tdSource = document.createElement('td'); tdSource.textContent = r.source || '—';
+          const tdSource = document.createElement('td');
+          if (r.sources && r.sources.size) {
+            const names = Array.from(r.sources).map(code => (window.SOURCES && window.SOURCES[code] ? window.SOURCES[code].name : code));
+            tdSource.textContent = names.join(', ');
+          } else if (r.source) {
+            const code = r.source; tdSource.textContent = (window.SOURCES && window.SOURCES[code] ? window.SOURCES[code].name : code);
+          } else {
+            tdSource.textContent = '—';
+          }
           tr.appendChild(tdMeetName); tr.appendChild(tdDate); tr.appendChild(tdCnt); tr.appendChild(tdEvents); tr.appendChild(tdSource);
           tbody.appendChild(tr);
         }
@@ -218,11 +224,13 @@
           const date = parseDateFlexible(r['Date']);
           if (!meetName || !date) continue;
           const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) byRace.set(key, { meetName, date, count: 0, events: new Set() });
+          if (!byRace.has(key)) byRace.set(key, { meetName, date, count: 0, events: new Set(), sources: new Set() });
           const agg = byRace.get(key);
           agg.count += 1;
           const event = (r['Event'] || '').trim();
           if (event) agg.events.add(event);
+          const srcCode = String(r['Source'] || '').trim();
+          if (srcCode) agg.sources.add(srcCode);
         }
         const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
         const title = (window.SOURCES && window.SOURCES[src] && window.SOURCES[src].name) || src;
@@ -240,11 +248,13 @@
           if (after && date < after) continue;
           if (before && date > before) continue;
           const key = `${meetName}::${date.toISOString().split('T')[0]}`;
-          if (!byRace.has(key)) byRace.set(key, { meetName, date, count: 0, events: new Set() });
+          if (!byRace.has(key)) byRace.set(key, { meetName, date, count: 0, events: new Set(), sources: new Set() });
           const agg = byRace.get(key);
           agg.count += 1;
           const event = (r['Event'] || '').trim();
           if (event) agg.events.add(event);
+          const srcCode = String(r['Source'] || '').trim();
+          if (srcCode) agg.sources.add(srcCode);
         }
         const list = Array.from(byRace.values()).sort((a,b) => (b.date?.getTime()||0) - (a.date?.getTime()||0));
         renderRacesTable(list, 'All sources');
