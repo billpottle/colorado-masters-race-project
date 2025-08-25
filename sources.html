@@ -29,13 +29,6 @@
       <section class="card" aria-labelledby="sources-title">
         <div class="card-content">
           <h2 id="sources-title" class="section-title"><span class="dot"></span>Sources</h2>
-          <div class="control-row" style="margin: 8px 0 12px;">
-            <label class="footer-note" for="filter-after" style="margin-right:6px;">After</label>
-            <input id="filter-after" type="date" class="input" style="min-width: 0; width: 160px;" />
-            <label class="footer-note" for="filter-before" style="margin: 0 6px 0 12px;">Before</label>
-            <input id="filter-before" type="date" class="input" style="min-width: 0; width: 160px;" />
-            <button id="view-all-btn" class="button" type="button" style="margin-left:auto;">View all races</button>
-          </div>
           <div id="sources-grid" class="grid" role="list"></div>
         </div>
       </section>
@@ -43,6 +36,14 @@
       <section id="races-card" class="card hidden" aria-labelledby="races-title" style="margin-top: 20px;">
         <div class="card-content">
           <h2 id="races-title" class="section-title" style="margin: 0;"><span class="dot"></span>Races</h2>
+          <div class="control-row" style="margin-top: 8px;">
+            <label class="footer-note" for="filter-after" style="margin-right:6px;">After</label>
+            <input id="filter-after" type="date" class="input" style="min-width: 0; width: 160px;" />
+            <label class="footer-note" for="filter-before" style="margin: 0 6px 0 12px;">Before</label>
+            <input id="filter-before" type="date" class="input" style="min-width: 0; width: 160px;" />
+            <button id="view-all-btn" class="button" type="button" style="margin-left:auto;">View all meets</button>
+            <button id="view-all-btn" class="button" type="button" style="margin-left:auto;">View all meets</button>
+          </div>
           <div id="races-summary" class="subtitle" style="margin-top: 6px;"></div>
           <div id="races-output" class="table-container" style="margin-top: 12px;">          </div>
         </div>
@@ -177,7 +178,7 @@
         const table = document.createElement('table');
         const thead = document.createElement('thead');
         const trh = document.createElement('tr');
-        ['Meet Name', 'Date', 'Results', 'Events'].forEach(h => {
+        ['Meet Name', 'Date', 'Results', 'Events', 'Source'].forEach(h => {
           const th = document.createElement('th'); th.textContent = h; trh.appendChild(th);
         });
         thead.appendChild(trh); table.appendChild(thead);
@@ -188,7 +189,8 @@
           const tdDate = document.createElement('td'); tdDate.textContent = formatDate(r.date);
           const tdCnt = document.createElement('td'); tdCnt.textContent = r.count.toLocaleString();
           const tdEvents = document.createElement('td'); tdEvents.textContent = Array.from(r.events).sort().join(', ');
-          tr.appendChild(tdMeetName); tr.appendChild(tdDate); tr.appendChild(tdCnt); tr.appendChild(tdEvents);
+          const tdSource = document.createElement('td'); tdSource.textContent = r.source || '—';
+          tr.appendChild(tdMeetName); tr.appendChild(tdDate); tr.appendChild(tdCnt); tr.appendChild(tdEvents); tr.appendChild(tdSource);
           tbody.appendChild(tr);
         }
         table.appendChild(tbody);
