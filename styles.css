@@ -270,6 +270,14 @@ select.input option {
 }
 .button:hover { filter: brightness(1.08); }
 
+/* Light theme button adjustments for better contrast */
+[data-theme="light"] .button {
+  border: 1px solid rgba(37,99,235,0.35);
+  background: linear-gradient(180deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));
+  color: #1f2937;
+}
+[data-theme="light"] .button:hover { filter: brightness(1.03); }
+
 /* Sources grid */
 .grid {
   display: grid;
