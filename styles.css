@@ -471,6 +471,9 @@ select.input option {
   text-transform: uppercase;
   color: #cbd5e1;
 }
+[data-theme="light"] .age-card h3 {
+  color: var(--text);
+}
 .custom-panel { margin-top: 10px; }
 .range-controls { display: flex; flex-direction: column; gap: 10px; }
 .range-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
