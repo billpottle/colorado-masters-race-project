@@ -18,7 +18,7 @@ Agent Mode for Single Race Result
 
 I would like you to go through track meet results at <url>
 You should extract the individual performances, create a new csv file, and then insert one row for each individual performance.
-The columns in the file should be 'Name', 'Time', 'Age', 'Meet Name', 'Gender', and 'Event'
+The columns in the file should be 'Name', 'Time', 'Age', 'Meet Name', 'Date', 'Gender', and 'Event'
 You should only include results from athletes 30 years old and older. In some cases, these will be listed under 'masters' divisions.
 If the race is specifically a masters race, but you cannot find age of a runner, then list their age as 'masters'. If it is not a masters specific race and you only have a division (for instance '65-69') then just use that division. 
 If the race is not specifically a masters race and you do not see an age listed for a runner, just skip them. Do not search other sources to confirm a runner's age. 
