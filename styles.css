@@ -324,6 +324,14 @@ select.input option {
   border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
   flex-shrink: 0;
 }
+.source-logo.placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: color-mix(in srgb, var(--text), transparent 30%);
+  background: color-mix(in srgb, var(--bg-accent), transparent 10%);
+}
 
 .card-title-section {
   flex: 1;
@@ -666,6 +674,14 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-accent), tran
 }
 .detail-logo {
   width: 60px; height: 60px; object-fit: contain; background: white; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
+}
+.detail-logo.placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: color-mix(in srgb, var(--text), transparent 30%);
+  background: color-mix(in srgb, var(--bg-accent), transparent 10%);
 }
 .detail-title { margin: 0; font-weight: 700; color: var(--text); }
 .detail-meta { margin: 2px 0 0; color: var(--muted); font-size: 12px; white-space: normal; }

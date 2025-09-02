@@ -123,9 +123,12 @@ function openRecordModal(row, currentLi) {
     const srcCode = String(row['Source'] || '').trim();
     const meta = SOURCE_META[srcCode] || { name: srcCode || 'Source', logo: '' };
     const meet = String(row['Meet name'] || '').trim();
+    const logoHtml = meta.logo
+      ? `<img class="detail-logo" src="${meta.logo}" alt="${meta.name || 'Source'} Logo" />`
+      : `<div class="detail-logo placeholder" aria-hidden="true">${(meta.name || 'S').slice(0,1)}</div>`;
     detail.innerHTML = `
       <div class="detail-inner">
-        <img class="detail-logo" src="${meta.logo || ''}" alt="${meta.name || 'Source'} Logo" />
+        ${logoHtml}
         <div>
           <h4 class="detail-title">${meet || 'Meet'}</h4>
           <p class="detail-meta">${meta.name || ''}</p>

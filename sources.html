@@ -272,12 +272,24 @@
           card.className = 'link-card';
           card.setAttribute('role','listitem');
           const header = document.createElement('div'); header.className = 'card-header-with-logo';
-          const img = document.createElement('img'); img.className = 'source-logo'; img.src = meta.logo; img.alt = `${meta.name} Logo`;
           const titleWrap = document.createElement('div'); titleWrap.className = 'card-title-section';
+          let logoEl;
+          if (meta.logo) {
+            const img = document.createElement('img');
+            img.className = 'source-logo';
+            img.src = meta.logo;
+            img.alt = `${meta.name} Logo`;
+            logoEl = img;
+          } else {
+            const ph = document.createElement('div');
+            ph.className = 'source-logo placeholder';
+            ph.textContent = (meta.name || code).slice(0,1);
+            logoEl = ph;
+          }
           const h3 = document.createElement('h3'); h3.textContent = meta.name;
           const p = document.createElement('p'); p.textContent = meta.description || '';
           titleWrap.appendChild(h3); if (p.textContent) titleWrap.appendChild(p);
-          header.appendChild(img); header.appendChild(titleWrap); card.appendChild(header);
+          header.appendChild(logoEl); header.appendChild(titleWrap); card.appendChild(header);
           const actions = document.createElement('div'); actions.className = 'card-actions';
           if (meta.url) {
             const a = document.createElement('a'); a.className = 'button'; a.href = meta.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Visit site'; actions.appendChild(a);

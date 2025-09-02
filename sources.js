@@ -50,6 +50,18 @@ window.SOURCES = {
     logo: 'img/tracksmith.png',
     description: 'Tracksmith-organized meets and events.'
   }
+  ,
+  MANUAL: {
+    name: 'Manual Entry',
+    // Intentionally no logo
+    description: 'One-off records added when the race sponsor is unknown.'
+  }
+  ,
+  RMMG: {
+    name: 'Rocky Mountain Masters Games',
+    // Intentionally no logo until provided
+    description: 'Masters track & field competition results.'
+  }
 };
 
 
