@@ -12,7 +12,7 @@ window.SOURCES = {
     name: 'Fort Collins Running Club',
     logo: 'img/FCRC-Logo-Full.webp',
     description: 'NoCo All Comers Track Meet Series at Loveland High School.',
-    url: 'https://fortcollinsrunningclub.org/noco-all-comers-track-meets/'
+    url: 'https://fortcollinsrunningclub.org/noco-all-comers-track-meet-series/'
   },
   CSG: {
     name: 'Colorado Senior Games',
