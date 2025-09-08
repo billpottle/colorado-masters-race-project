@@ -41,6 +41,8 @@ const elements = {
   recordModal: document.getElementById('record-modal'),
   recordLogo: document.getElementById('record-source-logo'),
   recordTitle: document.getElementById('record-modal-title'),
+  submitBtn: document.getElementById('submit-missing-btn'),
+  submitModal: document.getElementById('submit-modal'),
   themeDark: document.getElementById('theme-dark'),
   themeLight: document.getElementById('theme-light'),
 };
@@ -155,6 +157,18 @@ function closeRecordModal() {
   if (!elements.recordModal) return;
   elements.recordModal.classList.add('hidden');
   elements.recordModal.setAttribute('aria-hidden', 'true');
+}
+
+function openSubmitModal() {
+  if (!elements.submitModal) return;
+  elements.submitModal.classList.remove('hidden');
+  elements.submitModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeSubmitModal() {
+  if (!elements.submitModal) return;
+  elements.submitModal.classList.add('hidden');
+  elements.submitModal.setAttribute('aria-hidden', 'true');
 }
 
 function normalizeGender(g) {
@@ -795,7 +809,10 @@ function renderResultsTable(rows) {
     const tr = document.createElement('tr');
     for (const h of headers) {
       const td = document.createElement('td');
-      const value = row[h] != null ? String(row[h]) : '';
+      let value = row[h] != null ? String(row[h]) : '';
+      if (h === 'Date') {
+        value = formatDate(parseDateFlexible(value));
+      }
       td.textContent = value;
       tr.appendChild(td);
     }
@@ -911,6 +928,18 @@ async function loadData() {
     attachSearchHandlers();
     initTheme();
     attachEventUIHandlers();
+    // Submit modal handlers
+    if (elements.submitBtn) {
+      elements.submitBtn.addEventListener('click', openSubmitModal);
+    }
+    if (elements.submitModal) {
+      elements.submitModal.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!target) return;
+        const shouldClose = target.getAttribute && target.getAttribute('data-close') === 'true';
+        if (shouldClose) closeSubmitModal();
+      });
+    }
   } catch (err) {
     console.error('Failed to load CSV:', err);
     elements.error.classList.remove('hidden');

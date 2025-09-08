@@ -30,6 +30,7 @@
     <div class="top-right">
       <a class="button top-link" href="sources.html">Data sources</a>
       <a class="button top-link" href="https://github.com/billpottle/colorado-masters-race-project/commits/main/" target="_blank" rel="noopener noreferrer">Recent changes</a>
+      <button id="submit-missing-btn" class="button top-link" type="button">Submit missing time</button>
     </div>
     <section class="card" aria-labelledby="overview-title">
       <div class="card-content">
@@ -178,6 +179,34 @@
       <div class="modal-body">
         <img id="record-source-logo" class="modal-logo" alt="" />
         <h3 id="record-modal-title" class="modal-title"></h3>
+      </div>
+    </div>
+  </section>
+
+  <!-- Submit missing time modal -->
+  <section id="submit-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="submit-modal-title">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-content" role="document">
+      <button class="modal-close" type="button" aria-label="Close" data-close="true">×</button>
+      <div class="modal-body" style="display:block;">
+        <h3 id="submit-modal-title" class="modal-title" style="margin:0 0 8px;">Submit a missing time</h3>
+        <p style="margin: 6px 0 10px; color: var(--muted);">
+          This dataset has been compiled by volunteers on a 'best efforts' basis. If you have a performance that we are missing,
+          please send an email to
+          <a class="inline-link" href="mailto:colorado-masters-race-project@billpottle.com?subject=Missing%20performance%20submission">colorado-masters-race-project@billpottle.com</a>
+          with the following information:
+        </p>
+        <ul style="margin: 0 0 10px 16px; padding: 0;">
+          <li>Name</li>
+          <li>Date</li>
+          <li>Meet Name</li>
+          <li>Event</li>
+          <li>Time</li>
+        </ul>
+        <p style="margin: 10px 0 0; color: var(--muted);">
+          Any proof you can provide such as a link to official meet results, video recordings, scans of paper results or awards,
+          newspaper clippings, etc will be appreciated so that we can add in the missing time.
+        </p>
       </div>
     </div>
   </section>
