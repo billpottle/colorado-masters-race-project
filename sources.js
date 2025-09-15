@@ -17,7 +17,7 @@ window.SOURCES = {
   CSG: {
     name: 'Colorado Senior Games',
     logo: 'img/CO-Senior-Games-No-Year.svg',
-    description: 'Track and Field competition for athletes 50+ at Garry Berry Stadium in Colorado Springs.',
+    description: 'Track and Field competition for athletes 50+.',
     url: 'https://coloradoseniorgames.org/sport/track-and-field/'
   },
   WCSG: {
@@ -44,11 +44,6 @@ window.SOURCES = {
     name: 'Colorado Springs Striders Track Club',
     logo: 'img/CSSTC.png',
     description: 'Track and Field meets in Colorado Springs.'
-  },
-  TRACKSMITH: {
-    name: 'Tracksmith',
-    logo: 'img/tracksmith.png',
-    description: 'Tracksmith-organized meets and events.'
   }
   ,
   MANUAL: {

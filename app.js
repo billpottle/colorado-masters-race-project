@@ -45,6 +45,7 @@ const elements = {
   submitModal: document.getElementById('submit-modal'),
   themeDark: document.getElementById('theme-dark'),
   themeLight: document.getElementById('theme-light'),
+  clearFilters: document.getElementById('clear-filters'),
 };
 
 // Associate DOM elements with their source rows for robust click handling
@@ -277,9 +278,49 @@ function ordinal(n) {
   }
 }
 
+// Compute a numeric distance (in meters) from an event label for sorting
+// Examples handled: "100m", "800 m", "1500", "Mile", "1 Mile", "2 mile",
+// "3k", "5k", "10km", "3000m steeple", etc. Relays and unknowns go last.
+function eventDistanceMeters(eventName) {
+  if (!eventName) return Number.POSITIVE_INFINITY;
+  const raw = String(eventName).trim().toLowerCase().replace(/,/g, '');
+  // Put relays at the end
+  if (raw.includes('relay') || /\b\d+\s*x\s*\d+\b/.test(raw)) {
+    return Number.POSITIVE_INFINITY;
+  }
+  // Miles (e.g., "Mile", "1 Mile", "2 mile")
+  if (raw.includes('mile')) {
+    const m = raw.match(/(\d+(?:\.\d+)?)\s*mile/);
+    const n = m ? parseFloat(m[1]) : 1;
+    return n * 1609.34;
+  }
+  // Kilometers (e.g., "5k", "10k", "10km")
+  let km = raw.match(/(\d+(?:\.\d+)?)\s*k(m)?\b/);
+  if (km) {
+    return parseFloat(km[1]) * 1000;
+  }
+  // Meters with unit (e.g., "800m", "3000 m")
+  let mWithUnit = raw.match(/(\d+(?:\.\d+)?)\s*m\b/);
+  if (mWithUnit) {
+    return parseFloat(mWithUnit[1]);
+  }
+  // Bare number (assume meters) (e.g., "1500", "3000 steeple")
+  let bare = raw.match(/\b(\d{2,5})(?:\b|\s)/);
+  if (bare) {
+    return parseFloat(bare[1]);
+  }
+  // Unknowns last
+  return Number.POSITIVE_INFINITY;
+}
+
 function populateEventDropdown(rows) {
   if (!elements.eventSelect) return;
-  const events = Array.from(new Set(rows.map(r => (r['Event'] || '').trim()).filter(Boolean))).sort((a,b) => a.localeCompare(b));
+  const events = Array.from(new Set(rows.map(r => (r['Event'] || '').trim()).filter(Boolean))).sort((a, b) => {
+    const da = eventDistanceMeters(a);
+    const db = eventDistanceMeters(b);
+    if (da === db) return a.localeCompare(b);
+    return da - db;
+  });
   elements.eventSelect.innerHTML = '<option value="" disabled selected>Select an event…</option>' +
     events.map(e => `<option value="${e.replace(/"/g,'&quot;')}">${e}</option>`).join('');
 }
@@ -478,6 +519,39 @@ function attachEventUIHandlers() {
     // Save toggle state to localStorage
     localStorage.setItem('cmrp-one-per-athlete', elements.onePerAthlete.checked);
   });
+
+  // Clear filters button
+  if (elements.clearFilters) {
+    elements.clearFilters.addEventListener('click', () => {
+      // Reset gender to male
+      setActiveGender('male');
+      // Uncheck one per athlete and persist
+      if (elements.onePerAthlete) {
+        elements.onePerAthlete.checked = false;
+        localStorage.setItem('cmrp-one-per-athlete', 'false');
+      }
+      // Clear event selection
+      if (elements.eventSelect) {
+        elements.eventSelect.selectedIndex = 0;
+      }
+      // Hide custom panel and outputs
+      elements.customPanel && elements.customPanel.classList.add('hidden');
+      elements.customResults && elements.customResults.classList.add('hidden');
+      elements.customHistogram && elements.customHistogram.classList.add('hidden');
+      // Reset ranges to defaults
+      if (elements.ageMin) { elements.ageMin.value = '30'; }
+      if (elements.ageMax) { elements.ageMax.value = '100'; }
+      const evt = new Event('input');
+      elements.ageMin && elements.ageMin.dispatchEvent(evt);
+      elements.ageMax && elements.ageMax.dispatchEvent(evt);
+      // Clear leaderboard and chart
+      if (elements.leaderboardContainer) elements.leaderboardContainer.innerHTML = '';
+      if (elements.eventChart) {
+        elements.eventChart.classList.add('hidden');
+        elements.eventChart.innerHTML = '';
+      }
+    });
+  }
 
   // Analyze entire event: best time per age for male and female
   const analyzeEvent = () => {
