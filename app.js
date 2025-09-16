@@ -355,30 +355,61 @@ function filterRowsForLeaderboard(eventName, gender) {
   });
 }
 
-function filterOnePerAthlete(rows, eventName) {
+function getDivisionKeyForRow(row) {
+  const ageStr = String(row['Age'] || '').trim();
+  const age = Number(ageStr);
+  let ageRange = null;
+  if (!Number.isFinite(age) && ageStr.includes('-')) {
+    const parts = ageStr.split('-').map(s => Number(s.trim()));
+    if (parts.length === 2 && Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+      ageRange = { min: parts[0], max: parts[1] };
+    }
+  }
+  for (const group of AGE_GROUPS) {
+    if (ageRange) {
+      if (ageRange.min <= group.max && ageRange.max >= group.min) return group.label;
+    } else if (Number.isFinite(age)) {
+      if ((age >= group.min && age <= group.max) || (group.max === Infinity && age >= group.min)) {
+        return group.label;
+      }
+    }
+  }
+  return null;
+}
+
+function filterOnePerAthlete(rows, groupModeOrEventName) {
   if (!elements.onePerAthlete.checked) return rows;
-  
-  const athleteBestTimes = new Map();
-  
+  // groupMode: 'ageGroup' (default), 'age', or 'overall'
+  const groupMode = typeof groupModeOrEventName === 'string' && (groupModeOrEventName === 'age' || groupModeOrEventName === 'ageGroup' || groupModeOrEventName === 'overall') ? groupModeOrEventName : 'ageGroup';
+  const bestByAthleteDivision = new Map();
   for (const row of rows) {
     const athleteName = (row['Name'] || '').trim();
     const time = toSeconds(row['Time']);
-    
     if (!athleteName || !Number.isFinite(time)) continue;
-    
-    const key = athleteName.toLowerCase();
-    if (!athleteBestTimes.has(key) || time < athleteBestTimes.get(key).time) {
-      athleteBestTimes.set(key, { ...row, time });
+    let divisionKey = null;
+    if (groupMode === 'overall') {
+      divisionKey = 'all';
+    } else if (groupMode === 'age') {
+      const ageStr = String(row['Age'] || '').trim();
+      const ageNum = Number(ageStr);
+      if (Number.isFinite(ageNum)) divisionKey = 'age:' + ageNum;
+    } else {
+      divisionKey = getDivisionKeyForRow(row);
+    }
+    if (!divisionKey) continue;
+    const mapKey = athleteName.toLowerCase() + '::' + divisionKey;
+    const current = bestByAthleteDivision.get(mapKey);
+    if (!current || time < current.time) {
+      bestByAthleteDivision.set(mapKey, { ...row, time });
     }
   }
-  
-  return Array.from(athleteBestTimes.values());
+  return Array.from(bestByAthleteDivision.values());
 }
 
 function renderLeaderboard(eventName, gender) {
   if (!elements.leaderboardContainer) return;
   let rows = filterRowsForLeaderboard(eventName, gender);
-  rows = filterOnePerAthlete(rows, eventName);
+  rows = filterOnePerAthlete(rows, 'ageGroup');
   const byGroup = new Map();
   for (const group of AGE_GROUPS) byGroup.set(group.label, []);
   for (const r of rows) {
@@ -559,8 +590,8 @@ function attachEventUIHandlers() {
     if (!ev) return;
     let data = allRows.filter(r => (r['Event'] || '').trim() === ev && Number.isFinite(Number(r['Age'])) && Number.isFinite(toSeconds(r['Time'])));
     
-    // Apply one per athlete filter if enabled
-    data = filterOnePerAthlete(data, ev);
+    // Apply one per athlete filter if enabled (grouped by exact age for analysis)
+    data = filterOnePerAthlete(data, 'age');
     
     const series = { male: new Map(), female: new Map() };
     const bestMeta = { male: new Map(), female: new Map() };
@@ -653,8 +684,8 @@ function attachEventUIHandlers() {
       return Number.isFinite(t);
     });
     
-    // Apply one per athlete filter if enabled
-    rows = filterOnePerAthlete(rows, ev);
+    // Apply one per athlete filter if enabled (grouped by exact age for custom analysis)
+    rows = filterOnePerAthlete(rows, 'age');
     
     rows.sort((a,b) => toSeconds(a['Time']) - toSeconds(b['Time']));
     renderCustomResults(rows);
