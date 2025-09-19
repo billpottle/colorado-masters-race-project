@@ -35,6 +35,12 @@ window.SOURCES = {
     logo: 'img/denver-athletics.webp',
     description: 'Track and Field meets in the Denver area.'
   },
+  TB: {
+    name: 'TEAM Boulder',
+    logo: 'img/Team_Boulder.webp',
+    description: 'Local running events in Boulder, CO.',
+    url: 'https://www.teamboco.com/'
+  },
   USATF: {
     name: 'USA Track & Field',
     logo: 'img/USA_Track_and_Field.svg.png',
