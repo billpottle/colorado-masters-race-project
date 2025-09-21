@@ -54,13 +54,11 @@ window.SOURCES = {
   ,
   MANUAL: {
     name: 'Manual Entry',
-    // Intentionally no logo
-    description: 'One-off records added when the race sponsor is unknown.'
+    description: 'One Off Records Where Full Meet Records Are Unavailable.'
   }
   ,
   RMMG: {
     name: 'Rocky Mountain Masters Games',
-    // Intentionally no logo until provided
     description: 'Masters track & field competition results.'
   }
 };
