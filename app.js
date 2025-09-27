@@ -467,6 +467,16 @@ function renderLeaderboard(eventName, gender) {
         const li = document.createElement('li');
         const who = document.createElement('span'); who.className = 'who'; who.textContent = r['Name'] || '—';
         const time = document.createElement('span'); time.className = 'time'; time.textContent = r['Time'] || '—';
+        // Append subtle asterisk for unverified performances
+        const isUnverified = String(r['Verified'] || '').trim().toUpperCase() === 'N';
+        if (isUnverified) {
+          const star = document.createElement('span');
+          star.className = 'unverified-star';
+          star.textContent = '*';
+          star.setAttribute('title', 'not verified with official sources');
+          star.setAttribute('aria-label', 'not verified with official sources');
+          time.appendChild(star);
+        }
         const dateEl = document.createElement('span'); dateEl.className = 'date'; dateEl.textContent = formatDate(parseDateFlexible(r['Date'])) || '—';
         const ageEl = document.createElement('span'); ageEl.className = 'age'; ageEl.textContent = `age ${r['Age']}`;
         li.appendChild(who);
@@ -902,6 +912,7 @@ function renderResultsTable(rows) {
   const thead = document.createElement('thead');
   const trHead = document.createElement('tr');
   for (const h of headers) {
+    if (h === 'Verified') continue; // do not display Verified column
     const th = document.createElement('th');
     th.textContent = h;
     trHead.appendChild(th);
@@ -913,6 +924,7 @@ function renderResultsTable(rows) {
   for (const row of rows) {
     const tr = document.createElement('tr');
     for (const h of headers) {
+      if (h === 'Verified') continue; // do not display Verified column
       const td = document.createElement('td');
       let value = row[h] != null ? String(row[h]) : '';
       if (h === 'Date') {
