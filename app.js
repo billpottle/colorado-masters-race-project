@@ -467,15 +467,12 @@ function renderLeaderboard(eventName, gender) {
         const li = document.createElement('li');
         const who = document.createElement('span'); who.className = 'who'; who.textContent = r['Name'] || '—';
         const time = document.createElement('span'); time.className = 'time'; time.textContent = r['Time'] || '—';
-        // Append subtle asterisk for unverified performances
+        // Mark unverified with class so CSS can render asterisk via ::after (works well on mobile)
         const isUnverified = String(r['Verified'] || '').trim().toUpperCase() === 'N';
         if (isUnverified) {
-          const star = document.createElement('span');
-          star.className = 'unverified-star';
-          star.textContent = '*';
-          star.setAttribute('title', 'not verified with official sources');
-          star.setAttribute('aria-label', 'not verified with official sources');
-          time.appendChild(star);
+          time.classList.add('unverified');
+          time.setAttribute('title', 'not verified with official sources');
+          time.setAttribute('aria-label', 'not verified with official sources');
         }
         const dateEl = document.createElement('span'); dateEl.className = 'date'; dateEl.textContent = formatDate(parseDateFlexible(r['Date'])) || '—';
         const ageEl = document.createElement('span'); ageEl.className = 'age'; ageEl.textContent = `age ${r['Age']}`;
