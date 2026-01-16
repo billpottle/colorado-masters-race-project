@@ -744,8 +744,9 @@ body.landing {
 .landing-hero {
   min-height: 100vh;
   display: grid;
-  align-items: center;
+  align-items: end;
   padding: clamp(28px, 6vw, 90px);
+  padding-bottom: clamp(44px, 10vw, 140px);
   background:
     linear-gradient(120deg, var(--landing-overlay-strong) 0%, var(--landing-overlay-soft) 48%, var(--landing-overlay-strong) 100%),
     url("img/track_project_hero.jpg") center/cover no-repeat;
