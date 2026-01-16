@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>First Time Users • Colorado Masters Race Project</title>
+  <link rel="icon" type="image/svg+xml" href="runner-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="theme-toggle" aria-label="Theme selector">
+    <div class="segmented" role="tablist" aria-label="Theme">
+      <button id="theme-dark" class="seg-btn active" role="tab" aria-selected="true" type="button">🌙 Dark</button>
+      <button id="theme-light" class="seg-btn" role="tab" aria-selected="false" type="button">☀️ Light</button>
+    </div>
+  </div>
+  <header>
+    <h1 class="title">First Time Users</h1>
+    <p class="subtitle">Start here for an overview of the project and how to use the database.</p>
+    <div class="header-actions">
+      <a class="button" href="index.html" aria-label="Back to entry">← Back to entry</a>
+      <a class="button" href="database.html" aria-label="Go to database">Database</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="first-time-title">
+      <div class="card-content">
+        <h2 id="first-time-title" class="section-title"><span class="dot"></span>First time users please read</h2>
+        <div class="rich-text">
+          <p>
+            Welcome to the Colorado Masters Records Project, the repository of the fastest known track times (FKTs)
+            run by Masters (age 30+) athletes in the State of Colorado. By way of background, when I turned 70,
+            I started looking for the Colorado age group records as part of goal setting for the year. To my surprise,
+            the only records out there were for the mile, half marathon and marathon and they were structured in 10,
+            rather than 5, year increments. As a long time data geek, fixing that seemed a worthwhile challenge!
+          </p>
+
+          <h3>Methodology</h3>
+          <p>
+            Track seemed the logical place to start as there are (a) a relatively finite number of Masters eligible
+            track meets and (b) results are relatively standardized (as opposed to road, where distance measurement
+            and grade differences are a challenge). From that point, the project proceeded down two pathways:
+          </p>
+          <ul>
+            <li>
+              First, we pulled whatever records we could find off the internet. We think we have most of the meets
+              post 2019 or so, missing more before then as results are not online. Fortunately, there are good
+              historical records from the Colorado Senior Games and Rocky Mountain State Games going back to the
+              1970s so we were able to include those results.
+            </li>
+            <li>
+              Once an initial listing was developed, we ran the results by a number of older track athletes, many of
+              whom have been competing in Colorado for decades, to get their input. This enhanced the database with
+              a number of additional FKT-eligible times. At the present time we have more than 5,700 individual records
+              from 266 different meets going back to 1979.
+            </li>
+          </ul>
+          <p>
+            All that said, the Colorado Masters Records Project is designed to be a continuing effort and we need your
+            help. There are undoubtedly a substantial number of fast times not presently included in the database,
+            particularly from races prior to 2019. If you know of any times that would make the top three in any
+            particular distance/age category, please let me know and we will include them. Simple criteria: outdoor
+            track race run in the State of Colorado (a \"Colorado Soils\" time). There is a \"Submit a Missing Time\" link
+            on the home page or you can contact me directly at pottle@comcast.net.
+          </p>
+          <p>
+            Secondly, there are no doubt database errors, usually coming from mistakes in the raw internet data. These
+            can be as simple as misspelled names or a runner placed in an incorrect age group. Let us know of any
+            errors you find, bad links, etc.
+          </p>
+
+          <h3>How to use</h3>
+          <p>
+            Hopefully the site is straightforward and easy to use. From the home page you can simply specify a race
+            distance and gender, and the three fastest times/athletes for each age group will be shown. You can sort
+            between the three fastest times or the three fastest runners (to adjust for situations where one
+            individual has multiple top 3 times) with the \"1 Per Runner\" toggle.
+          </p>
+          <p>
+            Alternatively, you can enter the name of a specific athlete and the times we have for that athlete will
+            come up. I urge everyone to check their own name to see what races might be missing. Please make a special
+            effort to enter any missing times, particularly any times that would make the top three for a
+            distance/age group. If you cannot document the time (i.e. with an internet link, news article, etc.) please
+            reach out to me directly to discuss. We have a process for adding these non-verified times but with an
+            \"*\" until we can independently confirm.
+          </p>
+          <p>
+            There is a separate link to \"Data Sources\" on the main page if you are interested. Hopefully we can find
+            more meet information as the Colorado Masters Records Project receives wider distribution.
+          </p>
+
+          <h3>Thanks</h3>
+          <p>
+            A huge thank you to all who helped with this project, providing data and advice and reviewing the beta
+            version. A particular shout out to my son Bill, who actually built the database and used a variety of AI
+            techniques to pull data by name and age from online sources, saving countless manual input and review
+            hours. We would not have been able to do this without all of your support. I hope you enjoy the results -
+            please reach out with any additional data, corrections or suggestions.
+          </p>
+          <p class="signature">Thanks,<br>Jack Pottle</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const themeDark = document.getElementById('theme-dark');
+    const themeLight = document.getElementById('theme-light');
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme === 'light') {
+        root.setAttribute('data-theme', 'light');
+        themeLight && themeLight.classList.add('active');
+        themeDark && themeDark.classList.remove('active');
+      } else {
+        root.removeAttribute('data-theme');
+        themeDark && themeDark.classList.add('active');
+        themeLight && themeLight.classList.remove('active');
+      }
+    }
+    const stored = localStorage.getItem('cmrp-theme') || 'dark';
+    applyTheme(stored);
+    themeDark && themeDark.addEventListener('click', () => { localStorage.setItem('cmrp-theme','dark'); applyTheme('dark'); });
+    themeLight && themeLight.addEventListener('click', () => { localStorage.setItem('cmrp-theme','light'); applyTheme('light'); });
+  </script>
+</body>
+
+</html>
