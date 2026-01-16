@@ -746,7 +746,7 @@ body.landing {
   display: grid;
   align-items: end;
   padding: clamp(28px, 6vw, 90px);
-  padding-bottom: clamp(44px, 10vw, 140px);
+  padding-bottom: clamp(70px, 14vw, 190px);
   background:
     linear-gradient(120deg, var(--landing-overlay-strong) 0%, var(--landing-overlay-soft) 48%, var(--landing-overlay-strong) 100%),
     url("img/track_project_hero.jpg") center/cover no-repeat;
@@ -780,8 +780,8 @@ body.landing {
 .landing-panel {
   position: relative;
   z-index: 1;
-  max-width: 720px;
-  padding: clamp(20px, 4vw, 36px);
+  max-width: 880px;
+  padding: clamp(18px, 3.5vw, 30px);
   border-radius: 22px;
   border: 1px solid var(--landing-panel-border);
   background: var(--landing-panel);
