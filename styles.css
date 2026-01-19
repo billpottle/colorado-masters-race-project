@@ -727,8 +727,8 @@ body.landing {
   --landing-panel: rgba(11, 15, 20, 0.65);
   --landing-panel-border: rgba(255, 255, 255, 0.2);
   --landing-shadow: rgba(0, 0, 0, 0.45);
-  --landing-overlay-strong: rgba(11, 15, 20, 0.92);
-  --landing-overlay-soft: rgba(11, 15, 20, 0.55);
+  --landing-overlay-strong: rgba(11, 15, 20, 0.96);
+  --landing-overlay-soft: rgba(11, 15, 20, 0.78);
   --landing-track-line: rgba(255, 255, 255, 0.08);
   --landing-accent: #f7b05b;
   --landing-accent-strong: #e0633d;
@@ -780,13 +780,13 @@ body.landing {
 .landing-panel {
   position: relative;
   z-index: 1;
-  max-width: 880px;
-  padding: clamp(18px, 3.5vw, 30px);
-  border-radius: 22px;
-  border: 1px solid var(--landing-panel-border);
-  background: var(--landing-panel);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 30px 60px var(--landing-shadow);
+  max-width: 980px;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 .landing-title {
@@ -795,7 +795,7 @@ body.landing {
   font-weight: 400;
   margin: 0 0 18px;
   color: var(--landing-ink);
-  text-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
   opacity: 0;
   transform: translateY(14px);
   animation: landing-rise 0.9s ease forwards;
@@ -806,6 +806,7 @@ body.landing {
   line-height: 1.7;
   margin: 0 0 24px;
   color: var(--landing-muted);
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
   opacity: 0;
   transform: translateY(14px);
   animation: landing-rise 0.9s ease 0.18s forwards;
