@@ -724,11 +724,11 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg-accent), tran
 body.landing {
   --landing-ink: #f8f3ea;
   --landing-muted: rgba(249, 242, 231, 0.92);
-  --landing-panel: rgba(11, 15, 20, 0.65);
+  --landing-panel: rgba(24, 34, 46, 0.52);
   --landing-panel-border: rgba(255, 255, 255, 0.2);
-  --landing-shadow: rgba(0, 0, 0, 0.45);
-  --landing-overlay-strong: rgba(11, 15, 20, 0.96);
-  --landing-overlay-soft: rgba(11, 15, 20, 0.78);
+  --landing-shadow: rgba(0, 0, 0, 0.34);
+  --landing-overlay-strong: rgba(20, 30, 42, 0.74);
+  --landing-overlay-soft: rgba(20, 30, 42, 0.46);
   --landing-track-line: rgba(255, 255, 255, 0.08);
   --landing-accent: #f7b05b;
   --landing-accent-strong: #e0633d;
@@ -736,7 +736,7 @@ body.landing {
   --landing-accent-cool: rgba(59, 130, 246, 0.22);
   font-family: "DM Sans", sans-serif;
   color: var(--landing-ink);
-  background: #0b0f14;
+  background: #233247;
   background-image: none;
   background-attachment: scroll;
 }
