@@ -495,6 +495,7 @@ select.input option {
   border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
   border-radius: 12px;
   padding: 14px;
+  container-type: inline-size;
 }
 .age-card h3 {
   margin: 0 0 8px;
@@ -614,11 +615,11 @@ select.input option {
   border: 1px solid color-mix(in srgb, var(--text), transparent 90%);
 }
 .mini-list li + li { margin-top: 8px; }
-.mini-list .who { font-weight: 700; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+.mini-list .who { font-weight: 700; color: var(--text); min-width: 0; overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: break-word; }
 .mini-list .time { font-weight: 700; color: color-mix(in srgb, var(--primary), white 15%); text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
 .mini-list .time.unverified::after { content: '*'; margin-left: 4px; color: color-mix(in srgb, var(--muted), white 10%); font-weight: 700; }
 .mini-list .date, .mini-list .age { color: var(--muted); font-size: 12px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
-@media (max-width: 640px) {
+@container (max-width: 560px) {
   #age-leaderboard .mini-list li {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
