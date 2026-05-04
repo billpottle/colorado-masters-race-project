@@ -49,7 +49,7 @@ header {
   margin: 40px auto 16px;
   padding: 0 20px;
 }
-.header-actions { margin-top: 12px; }
+.header-actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
 .header-actions .button { text-decoration: none; display: inline-block; }
 .top-right {
   max-width: 1100px;
@@ -57,6 +57,8 @@ header {
   padding: 0 20px;
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
 }
 .top-right a { color: var(--primary); text-decoration: none; font-weight: 600; }
 .top-right a:hover { text-decoration: underline; }
@@ -616,6 +618,33 @@ select.input option {
 .mini-list .time { font-weight: 700; color: color-mix(in srgb, var(--primary), white 15%); text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
 .mini-list .time.unverified::after { content: '*'; margin-left: 4px; color: color-mix(in srgb, var(--muted), white 10%); font-weight: 700; }
 .mini-list .date, .mini-list .age { color: var(--muted); font-size: 12px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  #age-leaderboard .mini-list li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "who time"
+      "date time";
+    align-items: start;
+    gap: 4px 10px;
+  }
+  #age-leaderboard .mini-list .who {
+    grid-area: who;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+  #age-leaderboard .mini-list .time {
+    grid-area: time;
+    white-space: nowrap;
+  }
+  #age-leaderboard .mini-list .date {
+    grid-area: date;
+    text-align: left;
+  }
+  #age-leaderboard .mini-list .age {
+    display: none;
+  }
+}
 
 .table-container {
   margin-top: 12px;
